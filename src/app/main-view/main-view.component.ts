@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
 import { ThemeService } from '../shared/theme.service';
 import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
 
@@ -29,7 +29,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
             placeholder="what's on your mind?"
             size="l"
             appearance="outlined"
-            (keydown.enter)="capture($any(captureRef))"
+            (keydown.enter)="capture()"
             autofocus
             aria-label="Quick capture"
           ></wa-input>
@@ -45,7 +45,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
                   (change)="complete(task)"
                   [attr.aria-label]="'Complete: ' + task.title"
                 >
-                  {{ task.title }}
+                  <span [class.va-task-title-done]="task.done">{{ task.title }}</span>
                 </wa-checkbox>
               </li>
             }
@@ -147,6 +147,10 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         opacity: 0.4;
       }
 
+      .va-task-title-done {
+        text-decoration: line-through;
+      }
+
       .va-soon-row {
         margin-top: 40px;
       }
@@ -166,6 +170,8 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
   ],
 })
 export class MainViewComponent {
+  @ViewChild('captureRef') private captureRef!: ElementRef;
+
   nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
   soonTasks: MockTask[] = MOCK_SOON_TASKS;
   soonExpanded = false;
@@ -191,7 +197,8 @@ export class MainViewComponent {
     }, 500);
   }
 
-  capture(el: { value?: string }): void {
+  capture(): void {
+    const el = this.captureRef.nativeElement;
     if (!el.value?.trim()) return;
     el.value = '';
   }
