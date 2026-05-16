@@ -40,7 +40,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
           <h2 class="va-tier-label">NOW</h2>
           <ul class="va-task-list">
             @for (task of nowTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, nowTasks)" />
+              <app-task-item [task]="task" (complete)="completeTask($event, 'now')" />
             }
           </ul>
         </section>
@@ -49,7 +49,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
           <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
             @for (task of soonTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, soonTasks)" />
+              <app-task-item [task]="task" (complete)="completeTask($event, 'soon')" />
             }
           </ul>
         </wa-details>
@@ -82,7 +82,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
         font-weight: 600;
         letter-spacing: 0.15em;
         text-transform: uppercase;
-        opacity: 0.5;
+        color: var(--wa-color-text-quiet);
       }
 
       .va-main {
@@ -99,7 +99,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
         font-weight: 700;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-        opacity: 0.5;
+        color: var(--wa-color-text-quiet);
         margin: 0 0 16px;
       }
 
@@ -121,7 +121,7 @@ import { TaskItemComponent } from './task-item/task-item.component';
 
       .va-soon-item {
         font-size: 13px;
-        opacity: 0.6;
+        color: var(--wa-color-text-quiet);
         padding: 5px 0;
       }
     `,
@@ -147,11 +147,11 @@ export class MainViewComponent {
     this.themeService.toggle();
   }
 
-  completeTask(task: MockTask, list: MockTask[]): void {
+  completeTask(task: MockTask, list: 'now' | 'soon'): void {
     task.done = true;
     setTimeout(() => {
-      const idx = list.indexOf(task);
-      if (idx !== -1) list.splice(idx, 1);
+      if (list === 'now') this.nowTasks = this.nowTasks.filter((t) => t !== task);
+      else this.soonTasks = this.soonTasks.filter((t) => t !== task);
     }, 500);
   }
 
