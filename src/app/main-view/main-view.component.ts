@@ -60,8 +60,8 @@ import { TaskItemComponent } from './task-item/task-item.component';
     `
       .va-root {
         min-height: 100vh;
-        background: var(--color-surface, #fff);
-        color: var(--color-text, #111);
+        background: var(--wa-color-surface-default);
+        color: var(--wa-color-text-normal);
         display: flex;
         flex-direction: column;
         align-items: center;
