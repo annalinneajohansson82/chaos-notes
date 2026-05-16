@@ -4,13 +4,13 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
-import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
+import { TaskItemComponent } from './task-item/task-item.component';
 
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [],
+  imports: [TaskItemComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
@@ -40,13 +40,7 @@ import '@awesome.me/webawesome/dist/components/details/details.js';
           <h2 class="va-tier-label">NOW</h2>
           <ul class="va-task-list">
             @for (task of nowTasks; track task.id) {
-              <li class="va-task-item" [class.va-task-done]="task.done">
-                <wa-checkbox
-                  [checked]="task.done"
-                  (change)="complete(task)"
-                  [attr.aria-label]="'Complete: ' + task.title"
-                >{{ task.title }}</wa-checkbox>
-              </li>
+              <app-task-item [task]="task" (complete)="completeTask($event, nowTasks)" />
             }
           </ul>
         </section>
@@ -55,13 +49,7 @@ import '@awesome.me/webawesome/dist/components/details/details.js';
           <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
             @for (task of soonTasks; track task.id) {
-              <li class="va-task-item" [class.va-task-done]="task.done">
-                <wa-checkbox
-                  [checked]="task.done"
-                  (change)="complete(task)"
-                  [attr.aria-label]="'Complete: ' + task.title"
-                >{{ task.title }}</wa-checkbox>
-              </li>
+              <app-task-item [task]="task" (complete)="completeTask($event, soonTasks)" />
             }
           </ul>
         </wa-details>
@@ -97,7 +85,7 @@ import '@awesome.me/webawesome/dist/components/details/details.js';
         opacity: 0.5;
       }
 
-.va-main {
+      .va-main {
         width: 100%;
         max-width: 480px;
       }
@@ -121,24 +109,11 @@ import '@awesome.me/webawesome/dist/components/details/details.js';
         padding: 0;
       }
 
-      .va-task-item {
-        padding: 4px 8px;
-        border-left: 3px solid transparent;
-        margin-left: -11px;
-        transition: border-color 0.15s;
-      }
-      .va-task-item:hover {
-        border-left-color: currentColor;
-      }
-      .va-task-item.va-task-done {
-        opacity: 0.4;
-      }
-
       .va-soon-row {
         margin-top: 40px;
       }
 
-.va-soon-list {
+      .va-soon-list {
         list-style: none;
         margin: 12px 0 0 20px;
         padding: 0;
@@ -172,10 +147,11 @@ export class MainViewComponent {
     this.themeService.toggle();
   }
 
-  complete(task: MockTask): void {
+  completeTask(task: MockTask, list: MockTask[]): void {
     task.done = true;
     setTimeout(() => {
-      this.nowTasks = this.nowTasks.filter((t) => t.id !== task.id);
+      const idx = list.indexOf(task);
+      if (idx !== -1) list.splice(idx, 1);
     }, 500);
   }
 
