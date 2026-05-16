@@ -1,6 +1,8 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
 import { ThemeService } from '../shared/theme.service';
 import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
+import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/input/input.js';
 
 @Component({
   selector: 'app-main-view',
@@ -22,14 +24,15 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
 
       <main class="va-main">
         <div class="va-capture-row">
-          <input
+          <wa-input
             #captureRef
-            class="va-capture"
             placeholder="what's on your mind?"
-            (keydown.enter)="capture()"
             autofocus
+            with-clear
             aria-label="Quick capture"
-          />
+            (keydown.enter)="capture()"
+            style="width: 100%"
+          ></wa-input>
         </div>
 
         <section class="va-now-section" aria-label="Now tasks">
@@ -117,17 +120,6 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         margin-bottom: 48px;
       }
 
-      .va-capture {
-        width: 100%;
-        font-size: 16px;
-        padding: 10px 12px;
-        border: 1px solid currentColor;
-        border-radius: 4px;
-        background: transparent;
-        color: inherit;
-        box-sizing: border-box;
-      }
-
       .va-tier-label {
         font-size: 10px;
         font-weight: 700;
@@ -188,7 +180,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
   ],
 })
 export class MainViewComponent {
-  @ViewChild('captureRef') private captureRef!: ElementRef;
+  @ViewChild('captureRef') private captureRef!: ElementRef<WaInput>;
 
   nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
   soonTasks: MockTask[] = MOCK_SOON_TASKS;
