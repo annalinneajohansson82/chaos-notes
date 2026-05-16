@@ -11,28 +11,25 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
     <div class="va-root">
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
-        <wa-button
-          appearance="plain"
-          size="s"
+        <button
+          class="va-icon-btn"
           (click)="toggleTheme()"
           [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
         >
-          <wa-icon [attr.name]="isDark ? 'sun' : 'moon'" variant="regular"></wa-icon>
-        </wa-button>
+          {{ isDark ? '☀' : '☾' }}
+        </button>
       </header>
 
       <main class="va-main">
         <div class="va-capture-row">
-          <wa-input
+          <input
             #captureRef
             class="va-capture"
             placeholder="what's on your mind?"
-            size="l"
-            appearance="outlined"
             (keydown.enter)="capture()"
             autofocus
             aria-label="Quick capture"
-          ></wa-input>
+          />
         </div>
 
         <section class="va-now-section" aria-label="Now tasks">
@@ -40,32 +37,28 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
           <ul class="va-task-list">
             @for (task of nowTasks; track task.id) {
               <li class="va-task-item" [class.va-task-done]="task.done">
-                <wa-checkbox
-                  [checked]="task.done"
-                  (change)="complete(task)"
-                  [attr.aria-label]="'Complete: ' + task.title"
-                >
+                <label>
+                  <input
+                    type="checkbox"
+                    [checked]="task.done"
+                    (change)="complete(task)"
+                    [attr.aria-label]="'Complete: ' + task.title"
+                  />
                   <span [class.va-task-title-done]="task.done">{{ task.title }}</span>
-                </wa-checkbox>
+                </label>
               </li>
             }
           </ul>
         </section>
 
         <div class="va-soon-row">
-          <wa-button
-            appearance="plain"
-            size="s"
+          <button
+            class="va-expand-btn"
             (click)="soonExpanded = !soonExpanded"
             [attr.aria-expanded]="soonExpanded"
           >
-            <wa-icon
-              [attr.name]="soonExpanded ? 'chevron-down' : 'chevron-right'"
-              variant="regular"
-              slot="start"
-            ></wa-icon>
-            Soon — {{ soonLabel }}
-          </wa-button>
+            {{ soonExpanded ? '▾' : '▸' }} Soon — {{ soonLabel }}
+          </button>
           @if (soonExpanded) {
             <ul class="va-soon-list" aria-label="Soon tasks">
               @for (task of soonTasks; track task.id) {
@@ -81,8 +74,8 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
     `
       .va-root {
         min-height: 100vh;
-        background: var(--wa-color-surface-default);
-        color: var(--wa-color-text-normal);
+        background: var(--color-surface, #fff);
+        color: var(--color-text, #111);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -103,7 +96,16 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         font-weight: 600;
         letter-spacing: 0.15em;
         text-transform: uppercase;
-        color: var(--wa-color-text-quiet);
+        opacity: 0.5;
+      }
+
+      .va-icon-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 4px 8px;
+        color: inherit;
       }
 
       .va-main {
@@ -117,6 +119,13 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
 
       .va-capture {
         width: 100%;
+        font-size: 16px;
+        padding: 10px 12px;
+        border: 1px solid currentColor;
+        border-radius: 4px;
+        background: transparent;
+        color: inherit;
+        box-sizing: border-box;
       }
 
       .va-tier-label {
@@ -124,7 +133,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         font-weight: 700;
         letter-spacing: 0.2em;
         text-transform: uppercase;
-        color: var(--wa-color-text-quiet);
+        opacity: 0.5;
         margin: 0 0 16px;
       }
 
@@ -141,7 +150,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         transition: border-color 0.15s;
       }
       .va-task-item:hover {
-        border-left-color: var(--wa-color-brand-border-normal);
+        border-left-color: currentColor;
       }
       .va-task-item.va-task-done {
         opacity: 0.4;
@@ -155,6 +164,15 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         margin-top: 40px;
       }
 
+      .va-expand-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+        color: inherit;
+        padding: 0;
+      }
+
       .va-soon-list {
         list-style: none;
         margin: 12px 0 0 20px;
@@ -163,7 +181,7 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
 
       .va-soon-item {
         font-size: 13px;
-        color: var(--wa-color-text-quiet);
+        opacity: 0.6;
         padding: 5px 0;
       }
     `,

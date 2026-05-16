@@ -1,22 +1,11 @@
 <!doctype html>
-<html lang="en" class="wa-theme-default">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>ChaosNotes</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script>
-    (function() {
-      var stored = localStorage.getItem('chaos-notes-theme');
-      var dark = stored !== null ? stored === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.classList.add(dark ? 'wa-dark' : 'wa-light');
-      document.documentElement.setAttribute('data-webawesome',
-        new URL('webawesome', document.querySelector('base').href).pathname
-      );
-    })();
-  </script>
-  <script type="module" src="webawesome/webawesome.loader.js"></script>
 </head>
 <body>
   <app-root></app-root>
