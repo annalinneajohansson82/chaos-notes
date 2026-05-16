@@ -3,6 +3,9 @@ import { ThemeService } from '../shared/theme.service';
 import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
+import '@awesome.me/webawesome/dist/components/details/details.js';
 
 @Component({
   selector: 'app-main-view',
@@ -13,13 +16,11 @@ import '@awesome.me/webawesome/dist/components/input/input.js';
     <div class="va-root">
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
-        <button
-          class="va-icon-btn"
+        <wa-button
+          appearance="plain"
           (click)="toggleTheme()"
           [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-        >
-          {{ isDark ? '☀' : '☾' }}
-        </button>
+        >{{ isDark ? '☀' : '☾' }}</wa-button>
       </header>
 
       <main class="va-main">
@@ -40,36 +41,24 @@ import '@awesome.me/webawesome/dist/components/input/input.js';
           <ul class="va-task-list">
             @for (task of nowTasks; track task.id) {
               <li class="va-task-item" [class.va-task-done]="task.done">
-                <label>
-                  <input
-                    type="checkbox"
-                    [checked]="task.done"
-                    (change)="complete(task)"
-                    [attr.aria-label]="'Complete: ' + task.title"
-                  />
-                  <span [class.va-task-title-done]="task.done">{{ task.title }}</span>
-                </label>
+                <wa-checkbox
+                  [checked]="task.done"
+                  (change)="complete(task)"
+                  [attr.aria-label]="'Complete: ' + task.title"
+                >{{ task.title }}</wa-checkbox>
               </li>
             }
           </ul>
         </section>
 
-        <div class="va-soon-row">
-          <button
-            class="va-expand-btn"
-            (click)="soonExpanded = !soonExpanded"
-            [attr.aria-expanded]="soonExpanded"
-          >
-            {{ soonExpanded ? '▾' : '▸' }} Soon — {{ soonLabel }}
-          </button>
-          @if (soonExpanded) {
-            <ul class="va-soon-list" aria-label="Soon tasks">
-              @for (task of soonTasks; track task.id) {
-                <li class="va-soon-item">{{ task.title }}</li>
-              }
-            </ul>
-          }
-        </div>
+        <wa-details class="va-soon-row">
+          <span slot="summary">Soon — {{ soonLabel }}</span>
+          <ul class="va-soon-list" aria-label="Soon tasks">
+            @for (task of soonTasks; track task.id) {
+              <li class="va-soon-item">{{ task.title }}</li>
+            }
+          </ul>
+        </wa-details>
       </main>
     </div>
   `,
@@ -102,16 +91,7 @@ import '@awesome.me/webawesome/dist/components/input/input.js';
         opacity: 0.5;
       }
 
-      .va-icon-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-        padding: 4px 8px;
-        color: inherit;
-      }
-
-      .va-main {
+.va-main {
         width: 100%;
         max-width: 480px;
       }
@@ -148,24 +128,11 @@ import '@awesome.me/webawesome/dist/components/input/input.js';
         opacity: 0.4;
       }
 
-      .va-task-title-done {
-        text-decoration: line-through;
-      }
-
       .va-soon-row {
         margin-top: 40px;
       }
 
-      .va-expand-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 13px;
-        color: inherit;
-        padding: 0;
-      }
-
-      .va-soon-list {
+.va-soon-list {
         list-style: none;
         margin: 12px 0 0 20px;
         padding: 0;
@@ -184,7 +151,6 @@ export class MainViewComponent {
 
   nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
   soonTasks: MockTask[] = MOCK_SOON_TASKS;
-  soonExpanded = false;
 
   get soonLabel(): string {
     return getFuzzyLabel(this.soonTasks.length);
