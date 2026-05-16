@@ -1,11 +1,16 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
 import { ThemeService } from '../shared/theme.service';
 import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
+import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/input/input.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/details/details.js';
+import { TaskItemComponent } from './task-item/task-item.component';
 
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [],
+  imports: [TaskItemComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
@@ -13,25 +18,21 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         <span class="va-app-name">Chaos Notes</span>
         <wa-button
           appearance="plain"
-          size="s"
           (click)="toggleTheme()"
           [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-        >
-          <wa-icon [attr.name]="isDark ? 'sun' : 'moon'" variant="regular"></wa-icon>
-        </wa-button>
+        >{{ isDark ? '☀' : '☾' }}</wa-button>
       </header>
 
       <main class="va-main">
         <div class="va-capture-row">
           <wa-input
             #captureRef
-            class="va-capture"
             placeholder="what's on your mind?"
-            size="l"
-            appearance="outlined"
-            (keydown.enter)="capture()"
             autofocus
+            with-clear
             aria-label="Quick capture"
+            (keydown.enter)="capture()"
+            style="width: 100%"
           ></wa-input>
         </div>
 
@@ -39,41 +40,19 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
           <h2 class="va-tier-label">NOW</h2>
           <ul class="va-task-list">
             @for (task of nowTasks; track task.id) {
-              <li class="va-task-item" [class.va-task-done]="task.done">
-                <wa-checkbox
-                  [checked]="task.done"
-                  (change)="complete(task)"
-                  [attr.aria-label]="'Complete: ' + task.title"
-                >
-                  <span [class.va-task-title-done]="task.done">{{ task.title }}</span>
-                </wa-checkbox>
-              </li>
+              <app-task-item [task]="task" (complete)="completeTask($event, 'now')" />
             }
           </ul>
         </section>
 
-        <div class="va-soon-row">
-          <wa-button
-            appearance="plain"
-            size="s"
-            (click)="soonExpanded = !soonExpanded"
-            [attr.aria-expanded]="soonExpanded"
-          >
-            <wa-icon
-              [attr.name]="soonExpanded ? 'chevron-down' : 'chevron-right'"
-              variant="regular"
-              slot="start"
-            ></wa-icon>
-            Soon — {{ soonLabel }}
-          </wa-button>
-          @if (soonExpanded) {
-            <ul class="va-soon-list" aria-label="Soon tasks">
-              @for (task of soonTasks; track task.id) {
-                <li class="va-soon-item">{{ task.title }}</li>
-              }
-            </ul>
-          }
-        </div>
+        <wa-details class="va-soon-row">
+          <span slot="summary">Soon ({{ soonLabel }})</span>
+          <ul class="va-soon-list" aria-label="Soon tasks">
+            @for (task of soonTasks; track task.id) {
+              <app-task-item [task]="task" (complete)="completeTask($event, 'soon')" />
+            }
+          </ul>
+        </wa-details>
       </main>
     </div>
   `,
@@ -115,10 +94,6 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         margin-bottom: 48px;
       }
 
-      .va-capture {
-        width: 100%;
-      }
-
       .va-tier-label {
         font-size: 10px;
         font-weight: 700;
@@ -132,23 +107,6 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
         list-style: none;
         margin: 0;
         padding: 0;
-      }
-
-      .va-task-item {
-        padding: 4px 8px;
-        border-left: 3px solid transparent;
-        margin-left: -11px;
-        transition: border-color 0.15s;
-      }
-      .va-task-item:hover {
-        border-left-color: var(--wa-color-brand-border-normal);
-      }
-      .va-task-item.va-task-done {
-        opacity: 0.4;
-      }
-
-      .va-task-title-done {
-        text-decoration: line-through;
       }
 
       .va-soon-row {
@@ -170,11 +128,10 @@ import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock
   ],
 })
 export class MainViewComponent {
-  @ViewChild('captureRef') private captureRef!: ElementRef;
+  @ViewChild('captureRef') private captureRef!: ElementRef<WaInput>;
 
   nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
   soonTasks: MockTask[] = MOCK_SOON_TASKS;
-  soonExpanded = false;
 
   get soonLabel(): string {
     return getFuzzyLabel(this.soonTasks.length);
@@ -190,10 +147,11 @@ export class MainViewComponent {
     this.themeService.toggle();
   }
 
-  complete(task: MockTask): void {
+  completeTask(task: MockTask, list: 'now' | 'soon'): void {
     task.done = true;
     setTimeout(() => {
-      this.nowTasks = this.nowTasks.filter((t) => t.id !== task.id);
+      if (list === 'now') this.nowTasks = this.nowTasks.filter((t) => t !== task);
+      else this.soonTasks = this.soonTasks.filter((t) => t !== task);
     }, 500);
   }
 
