@@ -33,6 +33,9 @@
             "styles": [
               "src/styles.css",
               "@awesome.me/webawesome/dist/styles/webawesome.css"
+            ],
+            "scripts": [
+              "node_modules/@awesome.me/webawesome/dist/webawesome.loader.js"
             ]
           },
           "configurations": {
