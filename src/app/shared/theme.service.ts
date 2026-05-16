@@ -24,7 +24,8 @@ export class ThemeService {
 
   private loadPreference(): boolean {
     const stored = localStorage.getItem(this.STORAGE_KEY);
-    return stored === 'true';
+    if (stored !== null) return stored === 'true';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 
   private applyTheme(dark: boolean): void {
