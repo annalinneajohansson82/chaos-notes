@@ -52,10 +52,16 @@ import '@awesome.me/webawesome/dist/components/details/details.js';
         </section>
 
         <wa-details class="va-soon-row">
-          <span slot="summary">Soon — {{ soonLabel }}</span>
+          <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
             @for (task of soonTasks; track task.id) {
-              <li class="va-soon-item">{{ task.title }}</li>
+              <li class="va-task-item" [class.va-task-done]="task.done">
+                <wa-checkbox
+                  [checked]="task.done"
+                  (change)="complete(task)"
+                  [attr.aria-label]="'Complete: ' + task.title"
+                >{{ task.title }}</wa-checkbox>
+              </li>
             }
           </ul>
         </wa-details>
