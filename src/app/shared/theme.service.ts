@@ -1,0 +1,35 @@
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class ThemeService {
+  private readonly STORAGE_KEY = 'chaos-notes-theme';
+  private darkSubject = new BehaviorSubject<boolean>(this.loadPreference());
+  isDark$ = this.darkSubject.asObservable();
+
+  constructor() {
+    this.applyTheme(this.darkSubject.value);
+  }
+
+  toggle(): void {
+    const next = !this.darkSubject.value;
+    this.darkSubject.next(next);
+    this.applyTheme(next);
+    localStorage.setItem(this.STORAGE_KEY, String(next));
+  }
+
+  get isDark(): boolean {
+    return this.darkSubject.value;
+  }
+
+  private loadPreference(): boolean {
+    const stored = localStorage.getItem(this.STORAGE_KEY);
+    return stored === 'true';
+  }
+
+  private applyTheme(dark: boolean): void {
+    const html = document.documentElement;
+    html.classList.remove('wa-light', 'wa-dark');
+    html.classList.add(dark ? 'wa-dark' : 'wa-light');
+  }
+}
