@@ -2,20 +2,20 @@ import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { NoteService } from './note.service';
-import { DB_NAME, IDB_OPTIONS } from './db';
+import { CHAOS_DB, ChaosDb } from './db';
 
-function idbProviders() {
-  return [
-    { provide: DB_NAME, useValue: `chaos-test-${crypto.randomUUID()}` },
-    { provide: IDB_OPTIONS, useValue: { indexedDB: new IDBFactory(), IDBKeyRange } },
-  ];
+function chaosDbProvider() {
+  return {
+    provide: CHAOS_DB,
+    useFactory: () => new ChaosDb(`chaos-test-${crypto.randomUUID()}`, { indexedDB: new IDBFactory(), IDBKeyRange }),
+  };
 }
 
 describe('NoteService', () => {
   let service: NoteService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ providers: idbProviders() });
+    TestBed.configureTestingModule({ providers: [chaosDbProvider()] });
     service = TestBed.inject(NoteService);
   });
 

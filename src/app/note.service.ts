@@ -1,18 +1,12 @@
-import { Injectable, Inject, Optional } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Observable, Subject, from, startWith, switchMap } from 'rxjs';
-import { ChaosDb, DB_NAME, IDB_OPTIONS, Note, UrgencyTier } from './db';
+import { CHAOS_DB, ChaosDb, Note, UrgencyTier } from './db';
 
 @Injectable({ providedIn: 'root' })
 export class NoteService {
-  private readonly db: ChaosDb;
   private readonly _refresh = new Subject<void>();
 
-  constructor(
-    @Optional() @Inject(DB_NAME) name: string | null,
-    @Optional() @Inject(IDB_OPTIONS) idbOptions?: { indexedDB: IDBFactory; IDBKeyRange: typeof IDBKeyRange },
-  ) {
-    this.db = new ChaosDb(name ?? 'chaos-notes', idbOptions ?? undefined);
-  }
+  constructor(@Inject(CHAOS_DB) private readonly db: ChaosDb) {}
 
   getAll(): Promise<Note[]> {
     return this.db.notes.toArray();

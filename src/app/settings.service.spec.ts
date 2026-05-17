@@ -2,21 +2,18 @@ import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { SettingsService } from './settings.service';
-import { DB_NAME, DEFAULT_SETTINGS, IDB_OPTIONS } from './db';
+import { CHAOS_DB, ChaosDb, DEFAULT_SETTINGS } from './db';
 
 describe('SettingsService', () => {
   let service: SettingsService;
-  let sharedIdb: { indexedDB: IDBFactory; IDBKeyRange: typeof IDBKeyRange };
+  let sharedIdbOptions: { indexedDB: IDBFactory; IDBKeyRange: typeof IDBKeyRange };
   let dbName: string;
 
   beforeEach(() => {
     dbName = `settings-test-${crypto.randomUUID()}`;
-    sharedIdb = { indexedDB: new IDBFactory(), IDBKeyRange };
+    sharedIdbOptions = { indexedDB: new IDBFactory(), IDBKeyRange };
     TestBed.configureTestingModule({
-      providers: [
-        { provide: DB_NAME, useValue: dbName },
-        { provide: IDB_OPTIONS, useValue: sharedIdb },
-      ],
+      providers: [{ provide: CHAOS_DB, useValue: new ChaosDb(dbName, sharedIdbOptions) }],
     });
     service = TestBed.inject(SettingsService);
   });
@@ -46,12 +43,9 @@ describe('SettingsService', () => {
     service.close();
     TestBed.resetTestingModule();
 
-    // Same dbName and sharedIdb — same in-memory database
+    // Same dbName and sharedIdbOptions — same in-memory database
     TestBed.configureTestingModule({
-      providers: [
-        { provide: DB_NAME, useValue: dbName },
-        { provide: IDB_OPTIONS, useValue: sharedIdb },
-      ],
+      providers: [{ provide: CHAOS_DB, useValue: new ChaosDb(dbName, sharedIdbOptions) }],
     });
     const service2 = TestBed.inject(SettingsService);
     const loaded = await firstValueFrom(service2.settings$);

@@ -64,3 +64,5 @@ export class ChaosDb extends Dexie {
     });
   }
 }
+
+export const CHAOS_DB = new InjectionToken<ChaosDb>('ChaosDb');
