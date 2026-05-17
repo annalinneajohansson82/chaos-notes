@@ -83,6 +83,26 @@ export class NoteService {
     return note;
   }
 
+  async seedIfEmpty(): Promise<void> {
+    const count = await this.db.notes.count();
+    if (count > 0) return;
+    await Promise.all([
+      this.createTask('Reply to dentist appointment email', 'now'),
+      this.createTask('Pick up milk on the way home', 'now'),
+      this.createTask('Send invoice to client', 'now'),
+      this.createTask('Book train tickets for next month', 'soon'),
+      this.createTask('Finish reading that book', 'soon'),
+      this.createTask('Look into noise-cancelling headphones', 'soon'),
+      this.createTask('Call mum back', 'soon'),
+      this.createTask('Reorganise bookshelf', 'later'),
+      this.createTask('Learn a new recipe', 'later'),
+      this.createTask('Take a pottery class', 'someday'),
+      this.createTask('Plan a weekend trip', 'someday'),
+      this.create('The meeting felt weird — write it down properly later'),
+      this.create('Maybe try a standing desk?'),
+    ]);
+  }
+
   close(): void {
     this.db.close();
   }
