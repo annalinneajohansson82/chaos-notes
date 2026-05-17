@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto';
 import { TestBed } from '@angular/core/testing';
+import { firstValueFrom } from 'rxjs';
 import { NoteService } from './note.service';
 import { DB_NAME } from './db';
 
@@ -60,6 +61,24 @@ describe('NoteService', () => {
     const [archived] = await service.getAll();
     expect(archived.archived_at).toBeInstanceOf(Date);
     expect(archived.dirty).toBe(true);
+  });
+
+  it('watchByTier excludes soft-archived notes', async () => {
+    await service.createTask('Active', 'now');
+    const archived = await service.createTask('Archived', 'now');
+    await service.softArchive(archived.id);
+
+    const notes = await firstValueFrom(service.watchByTier('now'));
+    expect(notes.map(n => n.title)).toEqual(['Active']);
+  });
+
+  it('watchUncategorized excludes soft-archived notes', async () => {
+    await service.create('Active note');
+    const archived = await service.create('Archived note');
+    await service.softArchive(archived.id);
+
+    const notes = await firstValueFrom(service.watchUncategorized());
+    expect(notes.map(n => n.title)).toEqual(['Active note']);
   });
 
   it('delete removes the note permanently', async () => {

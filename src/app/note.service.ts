@@ -20,11 +20,17 @@ export class NoteService {
   }
 
   watchByTier(tier: UrgencyTier): Observable<Note[]> {
-    return from(liveQuery(() => this.db.notes.where('urgency_tier').equals(tier).toArray()));
+    return from(liveQuery(() =>
+      this.db.notes.where('urgency_tier').equals(tier)
+        .filter(n => n.archived_at === null)
+        .toArray()
+    ));
   }
 
   watchUncategorized(): Observable<Note[]> {
-    return from(liveQuery(() => this.db.notes.filter(n => n.urgency_tier === null).toArray()));
+    return from(liveQuery(() =>
+      this.db.notes.filter(n => n.urgency_tier === null && n.archived_at === null).toArray()
+    ));
   }
 
   async create(title: string): Promise<Note> {

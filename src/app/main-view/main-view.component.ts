@@ -197,6 +197,6 @@ export class MainViewComponent {
   }
 
   async completeTask(note: Note): Promise<void> {
-    await this.noteService.update(note.id, { done: true });
+    await this.noteService.softArchive(note.id);
   }
 }
