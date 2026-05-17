@@ -1,8 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../settings.service';
-import { DEFAULT_SETTINGS, FuzzyLabels, Settings } from '../db';
+import { DEFAULT_SETTINGS, Settings } from '../db';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 
@@ -118,7 +117,6 @@ export class SettingsComponent {
   private settingsService = inject(SettingsService);
   private router = inject(Router);
 
-  private current = toSignal(this.settingsService.settings$, { initialValue: DEFAULT_SETTINGS });
   saved = signal(false);
 
   draft: Settings = structuredClone(DEFAULT_SETTINGS);
