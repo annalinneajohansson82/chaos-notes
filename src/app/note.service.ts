@@ -80,21 +80,27 @@ export class NoteService {
   async seedIfEmpty(force = false): Promise<void> {
     const count = await this.db.notes.count();
     if (!force && count > 0) return;
-    await Promise.all([
-      this.createTask('Reply to dentist appointment email', 'now'),
-      this.createTask('Pick up milk on the way home', 'now'),
-      this.createTask('Send invoice to client', 'now'),
-      this.createTask('Book train tickets for next month', 'soon'),
-      this.createTask('Finish reading that book', 'soon'),
-      this.createTask('Look into noise-cancelling headphones', 'soon'),
-      this.createTask('Call mum back', 'soon'),
-      this.createTask('Reorganise bookshelf', 'later'),
-      this.createTask('Learn a new recipe', 'later'),
-      this.createTask('Take a pottery class', 'someday'),
-      this.createTask('Plan a weekend trip', 'someday'),
-      this.create('The meeting felt weird — write it down properly later'),
-      this.create('Maybe try a standing desk?'),
+    const now = new Date();
+    const make = (title: string, urgency_tier: UrgencyTier | null): Note => ({
+      id: crypto.randomUUID(), title, body: null, urgency_tier,
+      done: false, archived_at: null, created_at: now, updated_at: now, dirty: true,
+    });
+    await this.db.notes.bulkAdd([
+      make('Reply to dentist appointment email', 'now'),
+      make('Pick up milk on the way home', 'now'),
+      make('Send invoice to client', 'now'),
+      make('Book train tickets for next month', 'soon'),
+      make('Finish reading that book', 'soon'),
+      make('Look into noise-cancelling headphones', 'soon'),
+      make('Call mum back', 'soon'),
+      make('Reorganise bookshelf', 'later'),
+      make('Learn a new recipe', 'later'),
+      make('Take a pottery class', 'someday'),
+      make('Plan a weekend trip', 'someday'),
+      make('The meeting felt weird — write it down properly later', null),
+      make('Maybe try a standing desk?', null),
     ]);
+    this._refresh.next();
   }
 
   close(): void {
