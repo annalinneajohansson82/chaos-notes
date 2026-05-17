@@ -81,6 +81,26 @@ describe('NoteService', () => {
     expect(notes.map(n => n.title)).toEqual(['Active note']);
   });
 
+  it('updating urgency_tier promotes a plain note into the correct tier watch', async () => {
+    const note = await service.create('Inbox item');
+    await service.update(note.id, { urgency_tier: 'now' });
+
+    const nowNotes = await firstValueFrom(service.watchByTier('now'));
+    const uncategorized = await firstValueFrom(service.watchUncategorized());
+    expect(nowNotes.map(n => n.title)).toContain('Inbox item');
+    expect(uncategorized.map(n => n.title)).not.toContain('Inbox item');
+  });
+
+  it('updating urgency_tier to null demotes a task into uncategorized', async () => {
+    const task = await service.createTask('Now task', 'now');
+    await service.update(task.id, { urgency_tier: null });
+
+    const nowNotes = await firstValueFrom(service.watchByTier('now'));
+    const uncategorized = await firstValueFrom(service.watchUncategorized());
+    expect(nowNotes.map(n => n.title)).not.toContain('Now task');
+    expect(uncategorized.map(n => n.title)).toContain('Now task');
+  });
+
   it('delete removes the note permanently', async () => {
     const note = await service.create('To delete');
     await service.delete(note.id);

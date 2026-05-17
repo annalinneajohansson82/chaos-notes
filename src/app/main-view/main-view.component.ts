@@ -2,7 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject } from
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
 import { NoteService } from '../note.service';
-import { Note } from '../db';
+import { Note, UrgencyTier } from '../db';
 import { TaskItemComponent } from './task-item/task-item.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
@@ -51,7 +51,7 @@ function getFuzzyLabel(count: number): string {
           <h2 class="va-tier-label">NOW</h2>
           <ul class="va-task-list">
             @for (note of nowNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" />
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </section>
@@ -60,7 +60,7 @@ function getFuzzyLabel(count: number): string {
           <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
             @for (note of soonNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" />
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
@@ -69,7 +69,7 @@ function getFuzzyLabel(count: number): string {
           <span slot="summary">Later</span>
           <ul class="va-later-list" aria-label="Later tasks">
             @for (note of laterNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" />
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
@@ -78,7 +78,7 @@ function getFuzzyLabel(count: number): string {
           <span slot="summary">Someday</span>
           <ul class="va-someday-list" aria-label="Someday tasks">
             @for (note of somedayNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" />
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
@@ -87,7 +87,7 @@ function getFuzzyLabel(count: number): string {
           <span slot="summary">Braindump</span>
           <ul class="va-braindump-list" aria-label="Braindump notes">
             @for (note of braindumpNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" />
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
@@ -198,5 +198,13 @@ export class MainViewComponent {
 
   async completeTask(note: Note): Promise<void> {
     await this.noteService.softArchive(note.id);
+  }
+
+  async updateTitle(note: Note, title: string): Promise<void> {
+    await this.noteService.update(note.id, { title });
+  }
+
+  async updateTier(note: Note, tier: UrgencyTier | null): Promise<void> {
+    await this.noteService.update(note.id, { urgency_tier: tier });
   }
 }
