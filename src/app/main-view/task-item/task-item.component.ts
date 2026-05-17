@@ -112,7 +112,10 @@ export class TaskItemComponent {
   onCheck(): void {
     if (this.completing) return;
     this.completing = true;
-    setTimeout(() => this.complete.emit(this.task), 500);
+    setTimeout(() => {
+      this.complete.emit(this.task);
+      this.completing = false;
+    }, 500);
   }
 
   commitTitle(event: Event): void {
