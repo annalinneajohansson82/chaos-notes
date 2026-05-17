@@ -42,7 +42,11 @@
       "Bash(xargs '-I{}' sh -c ' *)",
       "Bash(~/.nvm/versions/node/v22.22.3/bin/node node_modules/.bin/ng test --help)",
       "Skill(tdd)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git push *)"
     ]
   }
 }
