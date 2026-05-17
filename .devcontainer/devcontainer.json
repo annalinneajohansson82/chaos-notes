@@ -9,7 +9,8 @@
     }
   },
   "mounts": [
-    "source=${localEnv:HOME}/.claude/skills,target=/home/node/.claude/skills,type=bind,readonly"
+    "source=${localEnv:HOME}/.claude/skills,target=/home/node/.claude/skills,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/gh,target=/home/node/.config/gh,type=bind,consistency=cached"
   ],
   "postCreateCommand": "npm install -g @angular/cli@21 @anthropic-ai/claude-code && npm install && echo 'alias claude=\"claude --dangerously-skip-permissions\"' >> ~/.bashrc",
   "postStartCommand": "bash .devcontainer/init-claude-credentials.sh",
