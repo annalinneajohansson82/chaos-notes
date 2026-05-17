@@ -38,7 +38,14 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
             autofocus
           ></wa-input>
         } @else {
-          <span class="va-title" (click)="enterEdit()">{{ task.title }}</span>
+          <span
+            class="va-title"
+            tabindex="0"
+            role="button"
+            (click)="enterEdit()"
+            (keydown.enter)="enterEdit()"
+            (keydown.space)="onTitleSpace($event)"
+          >{{ task.title }}</span>
           <wa-icon class="va-edit-hint" name="pen-to-square" variant="regular" aria-hidden="true" (click)="enterEdit()"></wa-icon>
         }
 
@@ -94,6 +101,12 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       flex: 1;
       cursor: text;
       font-size: 14px;
+      outline: none;
+      border-radius: var(--wa-border-radius-s);
+    }
+    .va-title:focus-visible {
+      outline: 2px solid var(--wa-color-brand-fill-loud);
+      outline-offset: 2px;
     }
 
     .va-edit-hint {
@@ -192,13 +205,19 @@ export class TaskItemComponent {
     });
   }
 
+  onTitleSpace(event: Event): void {
+    event.preventDefault();
+    this.enterEdit();
+  }
+
   onCheck(): void {
     if (this.completing) return;
     const host = this.el.nativeElement as HTMLElement;
     const wasFocused = host.contains(document.activeElement);
     if (wasFocused) {
-      const nextBtn = host.nextElementSibling?.querySelector('.va-checkbox-btn') as HTMLElement | null;
-      nextBtn?.focus();
+      const next = host.nextElementSibling?.querySelector('.va-checkbox-btn') as HTMLElement | null;
+      const prev = host.previousElementSibling?.querySelector('.va-checkbox-btn') as HTMLElement | null;
+      (next ?? prev)?.focus();
     }
     this.completing = true;
     setTimeout(() => {
