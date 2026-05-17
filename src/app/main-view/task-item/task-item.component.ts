@@ -37,7 +37,7 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       <wa-select
         class="va-tier-select"
         [value]="task.urgency_tier ?? ''"
-        (wa-change)="onTierChange($event)"
+        (change)="onTierChange($event)"
         aria-label="Urgency tier"
         size="small"
       >
