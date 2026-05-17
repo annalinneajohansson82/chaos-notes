@@ -1,7 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, Output, EventEmitter, HostListener, ElementRef, inject } from '@angular/core';
 import { Note, UrgencyTier } from '../../db';
 import '@awesome.me/webawesome/dist/components/button/button.js';
-import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
+import '@awesome.me/webawesome/dist/components/icon/icon.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/select/select.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -13,13 +13,19 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
   template: `
     <li class="va-task-item" [class.va-task-completing]="completing">
       <div class="va-task-row">
-        <wa-checkbox
-          class="va-checkbox"
-          [checked]="task.done"
+        <button
+          class="va-checkbox-btn"
+          (click)="onCheck()"
+          (mouseenter)="hoveringCheckbox = true"
+          (mouseleave)="hoveringCheckbox = false"
           [disabled]="completing"
-          (change)="onCheck()"
-          aria-label="Archive"
-        ></wa-checkbox>
+          aria-label="Mark done"
+        >
+          <wa-icon
+            [name]="task.done || hoveringCheckbox ? 'circle-check' : 'circle'"
+            variant="regular"
+          ></wa-icon>
+        </button>
 
         @if (editing) {
           <wa-input
@@ -108,6 +114,19 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       --wa-button-font-size: 11px;
     }
 
+    .va-checkbox-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .va-checkbox-btn:disabled { cursor: default; }
+
     /* Checkbox is disabled during animation to prevent double-fire on the async archive. */
     @keyframes completeSlideUp {
       to { opacity: 0; transform: translateY(-6px); }
@@ -129,6 +148,7 @@ export class TaskItemComponent {
   editing = false;
   completing = false;
   selectingTier = false;
+  hoveringCheckbox = false;
 
   @HostListener('document:mousedown', ['$event'])
   onDocumentMousedown(event: MouseEvent): void {

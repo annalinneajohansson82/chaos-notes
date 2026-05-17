@@ -46,7 +46,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git checkout *)",
       "Bash(git merge *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(gh issue create --title 'Replace settings page with wa-drawer' --body ' *)"
     ]
   }
 }
