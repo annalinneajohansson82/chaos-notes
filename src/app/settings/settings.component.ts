@@ -1,5 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../settings.service';
 import { DEFAULT_SETTINGS, Settings } from '../db';
 import '@awesome.me/webawesome/dist/components/input/input.js';
@@ -122,8 +123,7 @@ export class SettingsComponent {
   draft: Settings = structuredClone(DEFAULT_SETTINGS);
 
   constructor() {
-    // Initialise draft from loaded settings once they arrive
-    this.settingsService.settings$.subscribe(s => {
+    this.settingsService.settings$.pipe(takeUntilDestroyed()).subscribe(s => {
       this.draft = structuredClone(s);
     });
   }
