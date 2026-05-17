@@ -1,0 +1,37 @@
+{
+  "name": "chaos-notes",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "forwardPorts": [4200],
+  "portsAttributes": {
+    "4200": {
+      "label": "Angular dev server",
+      "onAutoForward": "notify"
+    }
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.claude/skills,target=/home/node/.claude/skills,type=bind,readonly"
+  ],
+  "postCreateCommand": "npm install -g @angular/cli@21 @anthropic-ai/claude-code && npm install && echo 'alias claude=\"claude --dangerously-skip-permissions\"' >> ~/.bashrc",
+  "postStartCommand": "sudo chown node:node /home/node/.claude",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Angular.ng-template",
+        "vitest.explorer",
+        "anthropic.claude-code"
+      ],
+      "settings": {
+        "task.allowAutomaticTasks": "on",
+        "claudeCode.initialPermissionMode": "bypassPermissions"
+      }
+    }
+  },
+  "containerEnv": {
+    "CLAUDE_CODE_OAUTH_TOKEN": "${localEnv:CLAUDE_CODE_OAUTH_TOKEN}"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "remoteUser": "node"
+}

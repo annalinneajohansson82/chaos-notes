@@ -3,9 +3,17 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "ng serve",
       "type": "npm",
       "script": "start",
       "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
       "problemMatcher": {
         "owner": "typescript",
         "pattern": "$tsc",
@@ -21,6 +29,7 @@
       }
     },
     {
+      "label": "vitest",
       "type": "npm",
       "script": "test",
       "isBackground": true,
