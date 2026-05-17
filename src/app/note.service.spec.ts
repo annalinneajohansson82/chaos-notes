@@ -1,16 +1,21 @@
-import 'fake-indexeddb/auto';
+import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { NoteService } from './note.service';
-import { DB_NAME } from './db';
+import { DB_NAME, IDB_OPTIONS } from './db';
+
+function idbProviders() {
+  return [
+    { provide: DB_NAME, useValue: `chaos-test-${crypto.randomUUID()}` },
+    { provide: IDB_OPTIONS, useValue: { indexedDB: new IDBFactory(), IDBKeyRange } },
+  ];
+}
 
 describe('NoteService', () => {
   let service: NoteService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [{ provide: DB_NAME, useValue: `chaos-test-${crypto.randomUUID()}` }],
-    });
+    TestBed.configureTestingModule({ providers: idbProviders() });
     service = TestBed.inject(NoteService);
   });
 
@@ -43,7 +48,7 @@ describe('NoteService', () => {
 
   it('update patches the note, sets dirty=true and bumps updated_at', async () => {
     const note = await service.create('Original');
-    await new Promise(r => setTimeout(r, 5)); // ensure updated_at advances
+    await new Promise(r => setTimeout(r, 5));
 
     await service.update(note.id, { title: 'Renamed', done: true });
 

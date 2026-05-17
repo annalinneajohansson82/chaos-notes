@@ -1,37 +1,42 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
 import { NoteService } from '../note.service';
-import { Note, UrgencyTier } from '../db';
+import { SettingsService } from '../settings.service';
+import { DEFAULT_SETTINGS, FuzzyLabels, Note, UrgencyTier } from '../db';
 import { TaskItemComponent } from './task-item/task-item.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
 
-function getFuzzyLabel(count: number): string {
+function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
   if (count === 0) return 'nothing';
-  if (count === 1) return 'just one thing';
-  if (count <= 2) return 'a couple things';
-  if (count <= 4) return 'a few things';
-  if (count <= 7) return 'quite a few things';
-  return 'many things';
+  if (count === 1) return labels.one;
+  if (count <= 2) return labels.couple;
+  if (count <= 4) return labels.few;
+  if (count <= 7) return labels.quiteFew;
+  return labels.many;
 }
 
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [TaskItemComponent],
+  imports: [TaskItemComponent, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
-        <wa-button
-          appearance="plain"
-          (click)="toggleTheme()"
-          [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-        >{{ isDark ? '☀' : '☾' }}</wa-button>
+        <div class="va-header-actions">
+          <a routerLink="/settings" class="va-settings-link" aria-label="Settings">⚙</a>
+          <wa-button
+            appearance="plain"
+            (click)="toggleTheme()"
+            [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >{{ isDark ? '☀' : '☾' }}</wa-button>
+        </div>
       </header>
 
       <main class="va-main">
@@ -115,6 +120,21 @@ function getFuzzyLabel(count: number): string {
         margin-bottom: 48px;
       }
 
+      .va-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .va-settings-link {
+        font-size: 16px;
+        text-decoration: none;
+        color: var(--wa-color-text-quiet);
+        padding: 4px 6px;
+        border-radius: 4px;
+      }
+      .va-settings-link:hover { color: var(--wa-color-text-normal); }
+
       .va-app-name {
         font-size: 11px;
         font-weight: 600;
@@ -170,7 +190,9 @@ export class MainViewComponent {
 
   private themeService = inject(ThemeService);
   private noteService = inject(NoteService);
+  private settingsService = inject(SettingsService);
 
+  settings = toSignal(this.settingsService.settings$, { initialValue: DEFAULT_SETTINGS });
   nowNotes = toSignal(this.noteService.watchByTier('now'), { initialValue: [] as Note[] });
   soonNotes = toSignal(this.noteService.watchByTier('soon'), { initialValue: [] as Note[] });
   laterNotes = toSignal(this.noteService.watchByTier('later'), { initialValue: [] as Note[] });
@@ -178,7 +200,7 @@ export class MainViewComponent {
   braindumpNotes = toSignal(this.noteService.watchUncategorized(), { initialValue: [] as Note[] });
 
   get soonLabel(): string {
-    return getFuzzyLabel(this.soonNotes().length);
+    return getFuzzyLabel(this.soonNotes().length, this.settings().fuzzyLabels);
   }
 
   get isDark(): boolean {
