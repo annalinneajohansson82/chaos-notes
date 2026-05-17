@@ -1,7 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, Output, EventEmitter, HostListener, ElementRef, inject } from '@angular/core';
 import { Note, UrgencyTier } from '../../db';
-import '@awesome.me/webawesome/dist/components/button/button.js';
-import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
+import '@awesome.me/webawesome/dist/components/icon/icon.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/select/select.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
@@ -11,15 +10,23 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <li class="va-task-item" [class.va-task-completing]="completing">
+    <li class="va-task-item" [class.va-task-completing]="completing" (focusout)="onFocusOut($event)">
       <div class="va-task-row">
-        <wa-checkbox
-          class="va-checkbox"
-          [checked]="task.done"
+        <button
+          class="va-checkbox-btn"
+          (click)="onCheck()"
+          (mouseenter)="hoveringCheckbox = true"
+          (mouseleave)="hoveringCheckbox = false"
+          (focus)="focusedCheckbox = true"
+          (blur)="focusedCheckbox = false"
           [disabled]="completing"
-          (change)="onCheck()"
-          aria-label="Archive"
-        ></wa-checkbox>
+          aria-label="Mark done"
+        >
+          <wa-icon
+            [name]="task.done || hoveringCheckbox || focusedCheckbox ? 'circle-check' : 'circle'"
+            variant="regular"
+          ></wa-icon>
+        </button>
 
         @if (editing) {
           <wa-input
@@ -31,35 +38,33 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
             autofocus
           ></wa-input>
         } @else {
-          <span class="va-title" (click)="editing = true">{{ task.title }}</span>
+          <span
+            class="va-title"
+            tabindex="0"
+            role="button"
+            (click)="enterEdit()"
+            (keydown.enter)="enterEdit()"
+            (keydown.space)="onTitleSpace($event)"
+          >{{ task.title }}</span>
+          <wa-icon class="va-edit-hint" name="pen-to-square" variant="regular" aria-hidden="true" (click)="enterEdit()"></wa-icon>
         }
 
-        @if (selectingTier) {
-          <wa-select
-            class="va-tier-select"
-            [value]="task.urgency_tier ?? ''"
-            (change)="onTierChange($event)"
-            (wa-hide)="selectingTier = false"
-            (wa-blur)="selectingTier = false"
-            aria-label="Urgency tier"
-            size="small"
-            autofocus
-          >
-            <wa-option value="">None</wa-option>
-            <wa-option value="now">Now</wa-option>
-            <wa-option value="soon">Soon</wa-option>
-            <wa-option value="later">Later</wa-option>
-            <wa-option value="someday">Someday</wa-option>
-          </wa-select>
-        } @else {
-          <wa-button
-            class="va-tier-btn"
-            size="xs"
-            pill
-            variant="neutral"
-            (click)="selectingTier = true"
-          >{{ tierLabel }}</wa-button>
-        }
+      </div>
+
+      <div class="va-tier-row" [class.va-tier-row--visible]="editing">
+        <wa-select
+          class="va-tier-select"
+          [value]="task.urgency_tier ?? ''"
+          (change)="onTierChange($event)"
+          aria-label="Urgency tier"
+          size="xs"
+        >
+          <wa-option value="">None</wa-option>
+          <wa-option value="now">Now</wa-option>
+          <wa-option value="soon">Soon</wa-option>
+          <wa-option value="later">Later</wa-option>
+          <wa-option value="someday">Someday</wa-option>
+        </wa-select>
       </div>
     </li>
   `,
@@ -67,12 +72,24 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
     :host { display: contents; }
 
     .va-task-item {
-      padding: 6px 8px 4px;
-      border-left: 3px solid transparent;
+      padding: var(--wa-space-m) var(--wa-space-xs);
+      margin-bottom: var(--wa-space-m);
       margin-left: -11px;
-      transition: border-color 0.15s;
+      border: 1px solid transparent;
+      border-radius: var(--wa-border-radius-m);
+      transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease,
+        color 0.15s ease;
     }
-    .va-task-item:hover { border-left-color: currentColor; }
+    .va-task-item:hover,
+    .va-task-item:focus-within {
+      background-color: var(--wa-color-fill-quiet);
+      border-color: var(--wa-color-border-quiet);
+      color: var(--wa-color-on-quiet);
+      box-shadow: var(--wa-shadow-m);
+    }
 
     .va-task-row {
       display: flex;
@@ -84,6 +101,24 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       flex: 1;
       cursor: text;
       font-size: 14px;
+      outline: none;
+      border-radius: var(--wa-border-radius-s);
+    }
+    .va-title:focus-visible {
+      outline: 2px solid var(--wa-color-brand-fill-loud);
+      outline-offset: 2px;
+    }
+
+    .va-edit-hint {
+      flex-shrink: 0;
+      font-size: 14px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .va-task-item:hover .va-edit-hint,
+    .va-task-item:focus-within .va-edit-hint {
+      opacity: 1;
     }
 
     .va-title-input {
@@ -94,8 +129,16 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       font-size: 14px;
     }
 
+    .va-tier-row {
+      padding-left: 28px;
+      margin-top: var(--wa-space-2xs);
+      display: none;
+    }
+    .va-tier-row--visible {
+      display: block;
+    }
+
     .va-tier-select {
-      flex-shrink: 0;
       width: 90px;
       --wa-select-font-size: 11px;
       --wa-select-background-color: transparent;
@@ -103,9 +146,25 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
       --wa-select-color: var(--wa-color-text-quiet);
     }
 
-    .va-tier-btn {
+    .va-checkbox-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      width: 1em;
+      height: 1em;
       flex-shrink: 0;
-      --wa-button-font-size: 11px;
+    }
+    .va-checkbox-btn:disabled { cursor: default; }
+    .va-checkbox-btn:focus-visible {
+      outline: 2px solid var(--wa-color-brand-fill-loud);
+      outline-offset: 2px;
+      border-radius: 50%;
     }
 
     /* Checkbox is disabled during animation to prevent double-fire on the async archive. */
@@ -128,22 +187,38 @@ export class TaskItemComponent {
 
   editing = false;
   completing = false;
-  selectingTier = false;
+  hoveringCheckbox = false;
+  focusedCheckbox = false;
 
   @HostListener('document:mousedown', ['$event'])
   onDocumentMousedown(event: MouseEvent): void {
-    if (this.selectingTier && !this.el.nativeElement.contains(event.target)) {
-      this.selectingTier = false;
+    if (this.editing && !this.el.nativeElement.contains(event.target)) {
+      this.editing = false;
     }
   }
 
-  get tierLabel(): string {
-    const map: Record<string, string> = { now: 'Now', soon: 'Soon', later: 'Later', someday: 'Someday' };
-    return this.task.urgency_tier ? map[this.task.urgency_tier] : 'None';
+  enterEdit(): void {
+    this.editing = true;
+    setTimeout(() => {
+      const input = this.el.nativeElement.querySelector('.va-title-input') as HTMLElement | null;
+      input?.focus();
+    });
+  }
+
+  onTitleSpace(event: Event): void {
+    event.preventDefault();
+    this.enterEdit();
   }
 
   onCheck(): void {
     if (this.completing) return;
+    const host = this.el.nativeElement as HTMLElement;
+    const wasFocused = host.contains(document.activeElement);
+    if (wasFocused) {
+      const next = host.nextElementSibling?.querySelector('.va-checkbox-btn') as HTMLElement | null;
+      const prev = host.previousElementSibling?.querySelector('.va-checkbox-btn') as HTMLElement | null;
+      (next ?? prev)?.focus();
+    }
     this.completing = true;
     setTimeout(() => {
       this.complete.emit(this.task);
@@ -162,5 +237,13 @@ export class TaskItemComponent {
   onTierChange(event: Event): void {
     const value = (event.target as any).value as string;
     this.tierChange.emit(value === '' ? null : value as UrgencyTier);
+  }
+
+  onFocusOut(event: FocusEvent): void {
+    const next = event.relatedTarget as Node | null;
+    const host = event.currentTarget as Element;
+    if (!next || !host.contains(next)) {
+      this.editing = false;
+    }
   }
 }
