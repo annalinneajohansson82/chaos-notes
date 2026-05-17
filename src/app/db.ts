@@ -18,13 +18,6 @@ export interface Note {
   dirty: boolean;
 }
 
-export interface NoteRelation {
-  id: string;
-  note_id: string;
-  task_id: string;
-  created_at: Date;
-}
-
 export interface FuzzyLabels {
   one: string;
   couple: string;
@@ -55,7 +48,6 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export class ChaosDb extends Dexie {
   notes!: Table<Note, string>;
-  note_relations!: Table<NoteRelation, string>;
   settings!: Table<Settings, string>;
 
   constructor(name: string, idbOptions?: { indexedDB: IDBFactory; IDBKeyRange: typeof IDBKeyRange }) {
@@ -66,6 +58,9 @@ export class ChaosDb extends Dexie {
     });
     this.version(2).stores({
       settings: 'id',
+    });
+    this.version(3).stores({
+      note_relations: null,
     });
   }
 }
