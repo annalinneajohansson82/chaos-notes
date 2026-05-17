@@ -1,4 +1,6 @@
 import { Injectable, Inject, Optional } from '@angular/core';
+import { Observable, from } from 'rxjs';
+import { liveQuery } from 'dexie';
 import { ChaosDb, DB_NAME, Note, UrgencyTier } from './db';
 
 @Injectable({ providedIn: 'root' })
@@ -15,6 +17,10 @@ export class NoteService {
 
   getByTier(tier: UrgencyTier): Promise<Note[]> {
     return this.db.notes.where('urgency_tier').equals(tier).toArray();
+  }
+
+  watchByTier(tier: UrgencyTier): Observable<Note[]> {
+    return from(liveQuery(() => this.db.notes.where('urgency_tier').equals(tier).toArray()));
   }
 
   async create(title: string): Promise<Note> {

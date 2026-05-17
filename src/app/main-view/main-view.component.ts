@@ -1,11 +1,22 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
-import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
+import { NoteService } from '../note.service';
+import { Note } from '../db';
+import { TaskItemComponent } from './task-item/task-item.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
-import { TaskItemComponent } from './task-item/task-item.component';
+
+function getFuzzyLabel(count: number): string {
+  if (count === 0) return 'nothing';
+  if (count === 1) return 'just one thing';
+  if (count <= 2) return 'a couple things';
+  if (count <= 4) return 'a few things';
+  if (count <= 7) return 'quite a few things';
+  return 'many things';
+}
 
 @Component({
   selector: 'app-main-view',
@@ -39,8 +50,8 @@ import { TaskItemComponent } from './task-item/task-item.component';
         <section class="va-now-section" aria-label="Now tasks">
           <h2 class="va-tier-label">NOW</h2>
           <ul class="va-task-list">
-            @for (task of nowTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, 'now')" />
+            @for (note of nowNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" />
             }
           </ul>
         </section>
@@ -48,8 +59,26 @@ import { TaskItemComponent } from './task-item/task-item.component';
         <wa-details class="va-soon-row">
           <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
-            @for (task of soonTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, 'soon')" />
+            @for (note of soonNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" />
+            }
+          </ul>
+        </wa-details>
+
+        <wa-details class="va-later-row">
+          <span slot="summary">Later</span>
+          <ul class="va-later-list" aria-label="Later tasks">
+            @for (note of laterNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" />
+            }
+          </ul>
+        </wa-details>
+
+        <wa-details class="va-someday-row">
+          <span slot="summary">Someday</span>
+          <ul class="va-someday-list" aria-label="Someday tasks">
+            @for (note of somedayNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" />
             }
           </ul>
         </wa-details>
@@ -109,20 +138,18 @@ import { TaskItemComponent } from './task-item/task-item.component';
         padding: 0;
       }
 
-      .va-soon-row {
+      .va-soon-row,
+      .va-later-row,
+      .va-someday-row {
         margin-top: 40px;
       }
 
-      .va-soon-list {
+      .va-soon-list,
+      .va-later-list,
+      .va-someday-list {
         list-style: none;
         margin: 12px 0 0 20px;
         padding: 0;
-      }
-
-      .va-soon-item {
-        font-size: 13px;
-        color: var(--wa-color-text-quiet);
-        padding: 5px 0;
       }
     `,
   ],
@@ -130,34 +157,34 @@ import { TaskItemComponent } from './task-item/task-item.component';
 export class MainViewComponent {
   @ViewChild('captureRef') private captureRef!: ElementRef<WaInput>;
 
-  nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
-  soonTasks: MockTask[] = MOCK_SOON_TASKS;
+  private themeService = inject(ThemeService);
+  private noteService = inject(NoteService);
+
+  nowNotes = toSignal(this.noteService.watchByTier('now'), { initialValue: [] as Note[] });
+  soonNotes = toSignal(this.noteService.watchByTier('soon'), { initialValue: [] as Note[] });
+  laterNotes = toSignal(this.noteService.watchByTier('later'), { initialValue: [] as Note[] });
+  somedayNotes = toSignal(this.noteService.watchByTier('someday'), { initialValue: [] as Note[] });
 
   get soonLabel(): string {
-    return getFuzzyLabel(this.soonTasks.length);
+    return getFuzzyLabel(this.soonNotes().length);
   }
 
   get isDark(): boolean {
     return this.themeService.isDark;
   }
 
-  constructor(private themeService: ThemeService) {}
-
   toggleTheme(): void {
     this.themeService.toggle();
   }
 
-  completeTask(task: MockTask, list: 'now' | 'soon'): void {
-    task.done = true;
-    setTimeout(() => {
-      if (list === 'now') this.nowTasks = this.nowTasks.filter((t) => t !== task);
-      else this.soonTasks = this.soonTasks.filter((t) => t !== task);
-    }, 500);
-  }
-
-  capture(): void {
+  async capture(): Promise<void> {
     const el = this.captureRef.nativeElement;
     if (!el.value?.trim()) return;
+    await this.noteService.create(el.value.trim());
     el.value = '';
+  }
+
+  async completeTask(note: Note): Promise<void> {
+    await this.noteService.update(note.id, { done: true });
   }
 }

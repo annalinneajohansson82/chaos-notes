@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, Output, EventEmitter } from '@angular/core';
-import { MockTask } from '../mock-data';
+import { Note } from '../../db';
 import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
 
 @Component({
@@ -29,6 +29,6 @@ import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
   `],
 })
 export class TaskItemComponent {
-  @Input({ required: true }) task!: MockTask;
-  @Output() complete = new EventEmitter<MockTask>();
+  @Input({ required: true }) task!: Note;
+  @Output() complete = new EventEmitter<Note>();
 }
