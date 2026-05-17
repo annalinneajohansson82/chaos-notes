@@ -83,9 +83,9 @@ export class NoteService {
     return note;
   }
 
-  async seedIfEmpty(): Promise<void> {
+  async seedIfEmpty(force = false): Promise<void> {
     const count = await this.db.notes.count();
-    if (count > 0) return;
+    if (!force && count > 0) return;
     await Promise.all([
       this.createTask('Reply to dentist appointment email', 'now'),
       this.createTask('Pick up milk on the way home', 'now'),
