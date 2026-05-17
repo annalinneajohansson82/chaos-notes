@@ -47,7 +47,9 @@
       "Bash(git checkout *)",
       "Bash(git merge *)",
       "Bash(git push *)",
-      "Bash(gh issue create --title 'Replace settings page with wa-drawer' --body ' *)"
+      "Bash(gh issue create --title 'Replace settings page with wa-drawer' --body ' *)",
+      "Bash(gh issue create --title 'Keyboard support for completing tasks: icon swap + focus advance' --body ' *)",
+      "Bash(mktemp -t handoff-XXXXXX.md)"
     ]
   }
 }
