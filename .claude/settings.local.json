@@ -41,7 +41,8 @@
       "Bash(~/.nvm/versions/node/v22.22.3/bin/npm --version)",
       "Bash(xargs '-I{}' sh -c ' *)",
       "Bash(~/.nvm/versions/node/v22.22.3/bin/node node_modules/.bin/ng test --help)",
-      "Skill(tdd)"
+      "Skill(tdd)",
+      "Bash(git add *)"
     ]
   }
 }

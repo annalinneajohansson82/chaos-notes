@@ -1,5 +1,6 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, Output, EventEmitter } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, Input, Output, EventEmitter, HostListener, ElementRef, inject } from '@angular/core';
 import { Note, UrgencyTier } from '../../db';
+import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/checkbox/checkbox.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/select/select.js';
@@ -32,21 +33,34 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
         } @else {
           <span class="va-title" (click)="editing = true">{{ task.title }}</span>
         }
-      </div>
 
-      <wa-select
-        class="va-tier-select"
-        [value]="task.urgency_tier ?? ''"
-        (change)="onTierChange($event)"
-        aria-label="Urgency tier"
-        size="small"
-      >
-        <wa-option value="">None</wa-option>
-        <wa-option value="now">Now</wa-option>
-        <wa-option value="soon">Soon</wa-option>
-        <wa-option value="later">Later</wa-option>
-        <wa-option value="someday">Someday</wa-option>
-      </wa-select>
+        @if (selectingTier) {
+          <wa-select
+            class="va-tier-select"
+            [value]="task.urgency_tier ?? ''"
+            (change)="onTierChange($event)"
+            (wa-hide)="selectingTier = false"
+            (wa-blur)="selectingTier = false"
+            aria-label="Urgency tier"
+            size="small"
+            autofocus
+          >
+            <wa-option value="">None</wa-option>
+            <wa-option value="now">Now</wa-option>
+            <wa-option value="soon">Soon</wa-option>
+            <wa-option value="later">Later</wa-option>
+            <wa-option value="someday">Someday</wa-option>
+          </wa-select>
+        } @else {
+          <wa-button
+            class="va-tier-btn"
+            size="xs"
+            pill
+            variant="neutral"
+            (click)="selectingTier = true"
+          >{{ tierLabel }}</wa-button>
+        }
+      </div>
     </li>
   `,
   styles: [`
@@ -81,13 +95,17 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
     }
 
     .va-tier-select {
-      display: block;
-      margin-top: 4px;
-      margin-left: 28px;
+      flex-shrink: 0;
+      width: 90px;
       --wa-select-font-size: 11px;
       --wa-select-background-color: transparent;
       --wa-select-border-width: 0;
       --wa-select-color: var(--wa-color-text-quiet);
+    }
+
+    .va-tier-btn {
+      flex-shrink: 0;
+      --wa-button-font-size: 11px;
     }
 
     /* Checkbox is disabled during animation to prevent double-fire on the async archive. */
@@ -106,8 +124,23 @@ export class TaskItemComponent {
   @Output() titleChange = new EventEmitter<string>();
   @Output() tierChange = new EventEmitter<UrgencyTier | null>();
 
+  private el = inject(ElementRef);
+
   editing = false;
   completing = false;
+  selectingTier = false;
+
+  @HostListener('document:mousedown', ['$event'])
+  onDocumentMousedown(event: MouseEvent): void {
+    if (this.selectingTier && !this.el.nativeElement.contains(event.target)) {
+      this.selectingTier = false;
+    }
+  }
+
+  get tierLabel(): string {
+    const map: Record<string, string> = { now: 'Now', soon: 'Soon', later: 'Later', someday: 'Someday' };
+    return this.task.urgency_tier ? map[this.task.urgency_tier] : 'None';
+  }
 
   onCheck(): void {
     if (this.completing) return;
