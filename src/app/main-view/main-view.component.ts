@@ -1,26 +1,42 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
-import { MOCK_NOW_TASKS, MOCK_SOON_TASKS, MockTask, getFuzzyLabel } from './mock-data';
+import { NoteService } from '../note.service';
+import { SettingsService } from '../settings.service';
+import { DEFAULT_SETTINGS, FuzzyLabels, Note, UrgencyTier } from '../db';
+import { TaskItemComponent } from './task-item/task-item.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
-import { TaskItemComponent } from './task-item/task-item.component';
+
+function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
+  if (count === 0) return 'nothing';
+  if (count === 1) return labels.one;
+  if (count <= 2) return labels.couple;
+  if (count <= 4) return labels.few;
+  if (count <= 7) return labels.quiteFew;
+  return labels.many;
+}
 
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [TaskItemComponent],
+  imports: [TaskItemComponent, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
-        <wa-button
-          appearance="plain"
-          (click)="toggleTheme()"
-          [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-        >{{ isDark ? '☀' : '☾' }}</wa-button>
+        <div class="va-header-actions">
+          <a routerLink="/settings" class="va-settings-link" aria-label="Settings">⚙</a>
+          <wa-button
+            appearance="plain"
+            (click)="toggleTheme()"
+            [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+          >{{ isDark ? '☀' : '☾' }}</wa-button>
+        </div>
       </header>
 
       <main class="va-main">
@@ -38,9 +54,12 @@ import { TaskItemComponent } from './task-item/task-item.component';
 
         <section class="va-now-section" aria-label="Now tasks">
           <h2 class="va-tier-label">NOW</h2>
+          @if (showNowNudge) {
+            <p class="va-now-nudge">You've got quite a bit in Now — maybe move something to Soon?</p>
+          }
           <ul class="va-task-list">
-            @for (task of nowTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, 'now')" />
+            @for (note of nowNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </section>
@@ -48,8 +67,35 @@ import { TaskItemComponent } from './task-item/task-item.component';
         <wa-details class="va-soon-row">
           <span slot="summary">Soon ({{ soonLabel }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
-            @for (task of soonTasks; track task.id) {
-              <app-task-item [task]="task" (complete)="completeTask($event, 'soon')" />
+            @for (note of soonNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
+            }
+          </ul>
+        </wa-details>
+
+        <wa-details class="va-later-row">
+          <span slot="summary">Later</span>
+          <ul class="va-later-list" aria-label="Later tasks">
+            @for (note of laterNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
+            }
+          </ul>
+        </wa-details>
+
+        <wa-details class="va-someday-row">
+          <span slot="summary">Someday</span>
+          <ul class="va-someday-list" aria-label="Someday tasks">
+            @for (note of somedayNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
+            }
+          </ul>
+        </wa-details>
+
+        <wa-details class="va-braindump-row">
+          <span slot="summary">Braindump</span>
+          <ul class="va-braindump-list" aria-label="Braindump notes">
+            @for (note of braindumpNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
@@ -77,6 +123,21 @@ import { TaskItemComponent } from './task-item/task-item.component';
         margin-bottom: 48px;
       }
 
+      .va-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .va-settings-link {
+        font-size: 16px;
+        text-decoration: none;
+        color: var(--wa-color-text-quiet);
+        padding: 4px 6px;
+        border-radius: 4px;
+      }
+      .va-settings-link:hover { color: var(--wa-color-text-normal); }
+
       .va-app-name {
         font-size: 11px;
         font-weight: 600;
@@ -103,26 +164,33 @@ import { TaskItemComponent } from './task-item/task-item.component';
         margin: 0 0 16px;
       }
 
+      .va-now-nudge {
+        font-size: 12px;
+        color: var(--wa-color-text-quiet);
+        margin: 0 0 12px;
+        font-style: italic;
+      }
+
       .va-task-list {
         list-style: none;
         margin: 0;
         padding: 0;
       }
 
-      .va-soon-row {
+      .va-soon-row,
+      .va-later-row,
+      .va-someday-row,
+      .va-braindump-row {
         margin-top: 40px;
       }
 
-      .va-soon-list {
+      .va-soon-list,
+      .va-later-list,
+      .va-someday-list,
+      .va-braindump-list {
         list-style: none;
         margin: 12px 0 0 20px;
         padding: 0;
-      }
-
-      .va-soon-item {
-        font-size: 13px;
-        color: var(--wa-color-text-quiet);
-        padding: 5px 0;
       }
     `,
   ],
@@ -130,34 +198,49 @@ import { TaskItemComponent } from './task-item/task-item.component';
 export class MainViewComponent {
   @ViewChild('captureRef') private captureRef!: ElementRef<WaInput>;
 
-  nowTasks: MockTask[] = MOCK_NOW_TASKS.map((t) => ({ ...t }));
-  soonTasks: MockTask[] = MOCK_SOON_TASKS;
+  private themeService = inject(ThemeService);
+  private noteService = inject(NoteService);
+  private settingsService = inject(SettingsService);
+
+  settings = toSignal(this.settingsService.settings$, { initialValue: DEFAULT_SETTINGS });
+  nowNotes = toSignal(this.noteService.watchByTier('now'), { initialValue: [] as Note[] });
+  soonNotes = toSignal(this.noteService.watchByTier('soon'), { initialValue: [] as Note[] });
+  laterNotes = toSignal(this.noteService.watchByTier('later'), { initialValue: [] as Note[] });
+  somedayNotes = toSignal(this.noteService.watchByTier('someday'), { initialValue: [] as Note[] });
+  braindumpNotes = toSignal(this.noteService.watchUncategorized(), { initialValue: [] as Note[] });
 
   get soonLabel(): string {
-    return getFuzzyLabel(this.soonTasks.length);
+    return getFuzzyLabel(this.soonNotes().length, this.settings().fuzzyLabels);
+  }
+
+  get showNowNudge(): boolean {
+    return this.nowNotes().length > this.settings().nowSoftLimit;
   }
 
   get isDark(): boolean {
     return this.themeService.isDark;
   }
 
-  constructor(private themeService: ThemeService) {}
-
   toggleTheme(): void {
     this.themeService.toggle();
   }
 
-  completeTask(task: MockTask, list: 'now' | 'soon'): void {
-    task.done = true;
-    setTimeout(() => {
-      if (list === 'now') this.nowTasks = this.nowTasks.filter((t) => t !== task);
-      else this.soonTasks = this.soonTasks.filter((t) => t !== task);
-    }, 500);
-  }
-
-  capture(): void {
+  async capture(): Promise<void> {
     const el = this.captureRef.nativeElement;
     if (!el.value?.trim()) return;
+    await this.noteService.create(el.value.trim());
     el.value = '';
+  }
+
+  async completeTask(note: Note): Promise<void> {
+    await this.noteService.softArchive(note.id);
+  }
+
+  async updateTitle(note: Note, title: string): Promise<void> {
+    await this.noteService.update(note.id, { title });
+  }
+
+  async updateTier(note: Note, tier: UrgencyTier | null): Promise<void> {
+    await this.noteService.update(note.id, { urgency_tier: tier });
   }
 }
