@@ -12,7 +12,7 @@
     "source=${localEnv:HOME}/.claude/skills,target=/home/node/.claude/skills,type=bind,readonly"
   ],
   "postCreateCommand": "npm install -g @angular/cli@21 @anthropic-ai/claude-code && npm install && echo 'alias claude=\"claude --dangerously-skip-permissions\"' >> ~/.bashrc",
-  "postStartCommand": "sudo chown node:node /home/node/.claude",
+  "postStartCommand": "bash .devcontainer/init-claude-credentials.sh",
   "customizations": {
     "vscode": {
       "extensions": [
