@@ -54,6 +54,9 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 
         <section class="va-now-section" aria-label="Now tasks">
           <h2 class="va-tier-label">NOW</h2>
+          @if (showNowNudge) {
+            <p class="va-now-nudge">You've got quite a bit in Now — maybe move something to Soon?</p>
+          }
           <ul class="va-task-list">
             @for (note of nowNotes(); track note.id) {
               <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
@@ -161,6 +164,13 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
         margin: 0 0 16px;
       }
 
+      .va-now-nudge {
+        font-size: 12px;
+        color: var(--wa-color-text-quiet);
+        margin: 0 0 12px;
+        font-style: italic;
+      }
+
       .va-task-list {
         list-style: none;
         margin: 0;
@@ -201,6 +211,10 @@ export class MainViewComponent {
 
   get soonLabel(): string {
     return getFuzzyLabel(this.soonNotes().length, this.settings().fuzzyLabels);
+  }
+
+  get showNowNudge(): boolean {
+    return this.nowNotes().length > this.settings().nowSoftLimit;
   }
 
   get isDark(): boolean {
