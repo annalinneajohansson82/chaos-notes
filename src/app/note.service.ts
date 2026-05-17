@@ -23,6 +23,10 @@ export class NoteService {
     return from(liveQuery(() => this.db.notes.where('urgency_tier').equals(tier).toArray()));
   }
 
+  watchUncategorized(): Observable<Note[]> {
+    return from(liveQuery(() => this.db.notes.filter(n => n.urgency_tier === null).toArray()));
+  }
+
   async create(title: string): Promise<Note> {
     return this.persist({ urgency_tier: null, title });
   }

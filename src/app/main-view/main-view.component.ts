@@ -82,6 +82,15 @@ function getFuzzyLabel(count: number): string {
             }
           </ul>
         </wa-details>
+
+        <wa-details class="va-braindump-row">
+          <span slot="summary">Braindump</span>
+          <ul class="va-braindump-list" aria-label="Braindump notes">
+            @for (note of braindumpNotes(); track note.id) {
+              <app-task-item [task]="note" (complete)="completeTask($event)" />
+            }
+          </ul>
+        </wa-details>
       </main>
     </div>
   `,
@@ -140,13 +149,15 @@ function getFuzzyLabel(count: number): string {
 
       .va-soon-row,
       .va-later-row,
-      .va-someday-row {
+      .va-someday-row,
+      .va-braindump-row {
         margin-top: 40px;
       }
 
       .va-soon-list,
       .va-later-list,
-      .va-someday-list {
+      .va-someday-list,
+      .va-braindump-list {
         list-style: none;
         margin: 12px 0 0 20px;
         padding: 0;
@@ -164,6 +175,7 @@ export class MainViewComponent {
   soonNotes = toSignal(this.noteService.watchByTier('soon'), { initialValue: [] as Note[] });
   laterNotes = toSignal(this.noteService.watchByTier('later'), { initialValue: [] as Note[] });
   somedayNotes = toSignal(this.noteService.watchByTier('someday'), { initialValue: [] as Note[] });
+  braindumpNotes = toSignal(this.noteService.watchUncategorized(), { initialValue: [] as Note[] });
 
   get soonLabel(): string {
     return getFuzzyLabel(this.soonNotes().length);
