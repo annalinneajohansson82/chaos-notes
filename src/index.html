@@ -11,6 +11,8 @@
       var stored = localStorage.getItem('chaos-notes-theme');
       var dark = stored !== null ? stored === 'true' : matchMedia('(prefers-color-scheme: dark)').matches;
       if (dark) document.documentElement.classList.add('wa-dark');
+      var family = localStorage.getItem('chaos-notes-theme-family');
+      if (family === 'dracula') document.documentElement.classList.add('theme-dracula');
     })();
   </script>
 </head>
