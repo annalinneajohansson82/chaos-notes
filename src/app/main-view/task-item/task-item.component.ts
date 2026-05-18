@@ -57,21 +57,23 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
       </div>
 
-      <div class="va-tier-row" [class.va-tier-row--visible]="editing">
-        <wa-select
-          class="va-tier-select"
-          [value]="task.urgency_tier ?? ''"
-          (change)="onTierChange($event)"
-          aria-label="Urgency tier"
-          size="xs"
-        >
-          <wa-option value="">None</wa-option>
-          <wa-option value="now">Now</wa-option>
-          <wa-option value="soon">Soon</wa-option>
-          <wa-option value="later">Later</wa-option>
-          <wa-option value="someday">Someday</wa-option>
-        </wa-select>
-      </div>
+      @if (editing) {
+        <div class="va-tier-row">
+          <wa-select
+            class="va-tier-select"
+            [value]="task.urgency_tier ?? ''"
+            (change)="onTierChange($event)"
+            aria-label="Urgency tier"
+            size="xs"
+          >
+            <wa-option value="">None</wa-option>
+            <wa-option value="now">Now</wa-option>
+            <wa-option value="soon">Soon</wa-option>
+            <wa-option value="later">Later</wa-option>
+            <wa-option value="someday">Someday</wa-option>
+          </wa-select>
+        </div>
+      }
     </li>
   `,
   styles: [`
@@ -140,10 +142,6 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
     .va-tier-row {
       padding-left: 28px;
       margin-top: var(--wa-space-2xs);
-      display: none;
-    }
-    .va-tier-row--visible {
-      display: block;
     }
 
     .va-tier-select {
