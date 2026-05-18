@@ -81,23 +81,21 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
       padding: var(--wa-space-m) var(--wa-space-xs);
       margin-bottom: var(--wa-space-xs);
       margin-left: -11px;
-      border: 1.5px solid var(--wa-color-border-quiet);
+      border: 1px solid transparent;
       border-radius: var(--wa-border-radius-m);
       transition:
         background-color 0.15s ease,
         border-color 0.15s ease,
         box-shadow 0.15s ease,
-        transform 0.15s ease,
         color 0.15s ease;
     }
     .va-task-item:hover,
     .va-task-item:focus-within,
     .va-task-item.va-task-selected {
       background-color: var(--wa-color-fill-quiet);
-      border-color: var(--wa-color-text-normal);
+      border-color: var(--wa-color-border-quiet);
       color: var(--wa-color-on-quiet);
       box-shadow: 3px 3px 0 var(--wa-color-text-normal);
-      transform: translate(-1px, -1px);
     }
 
     .va-task-row {
