@@ -1,1 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Dracula dark (https://draculatheme.com/spec) */
+html.theme-dracula.wa-dark {
+  --wa-color-surface-default: #282A36;
+  --wa-color-surface-sunken: #21222C;
+  --wa-color-surface-raised: #343746;
+  --wa-color-text-normal: #F8F8F2;
+  --wa-color-text-quiet: #6272A4;
+  --wa-color-fill-quiet: #44475A;
+  --wa-color-border-quiet: #44475A;
+  --wa-color-on-quiet: #F8F8F2;
+  --wa-color-brand-fill-loud: #BD93F9;
+  --wa-color-brand-text-on-loud: #282A36;
+}
+
+/* Alucard light — Dracula's official light palette (https://draculatheme.com/spec) */
+html.theme-dracula:not(.wa-dark) {
+  --wa-color-surface-default: #F8F8F2;
+  --wa-color-surface-sunken: #EBEBEB;
+  --wa-color-surface-raised: #FFFFFF;
+  --wa-color-text-normal: #282A36;
+  --wa-color-text-quiet: #6272A4;
+  --wa-color-fill-quiet: #E3E4E7;
+  --wa-color-border-quiet: #E3E4E7;
+  --wa-color-on-quiet: #282A36;
+  --wa-color-brand-fill-loud: #5A00BF;
+  --wa-color-brand-text-on-loud: #F8F8F2;
+}

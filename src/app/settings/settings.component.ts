@@ -2,6 +2,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../settings.service';
+import { ThemeService, ThemeFamily } from '../shared/theme.service';
 import { DEFAULT_SETTINGS, Settings } from '../db';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
@@ -22,6 +23,24 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
       }
 
       <form class="s-form" (submit)="save($event)">
+        <section class="s-section">
+          <h2 class="s-section-label">Theme</h2>
+          <div class="s-theme-picker">
+            <button
+              type="button"
+              class="s-theme-btn"
+              [class.s-theme-btn--active]="themeFamily() === 'default'"
+              (click)="selectTheme('default')"
+            >Default</button>
+            <button
+              type="button"
+              class="s-theme-btn s-theme-btn--dracula"
+              [class.s-theme-btn--active]="themeFamily() === 'dracula'"
+              (click)="selectTheme('dracula')"
+            >Dracula</button>
+          </div>
+        </section>
+
         <section class="s-section">
           <h2 class="s-section-label">Now soft-limit</h2>
           <wa-input
@@ -112,13 +131,39 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
       font-size: 12px;
       margin-bottom: 8px;
     }
+    .s-theme-picker {
+      display: flex;
+      gap: 8px;
+    }
+    .s-theme-btn {
+      padding: 6px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--wa-color-border-quiet);
+      background: var(--wa-color-surface-default);
+      color: var(--wa-color-text-normal);
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .s-theme-btn:hover {
+      border-color: var(--wa-color-text-quiet);
+    }
+    .s-theme-btn--active {
+      border-color: var(--wa-color-brand-fill-loud);
+      background: var(--wa-color-fill-quiet);
+    }
+    .s-theme-btn--dracula {
+      font-family: monospace;
+    }
   `],
 })
 export class SettingsComponent {
   private settingsService = inject(SettingsService);
+  private themeService = inject(ThemeService);
   private router = inject(Router);
 
   saved = signal(false);
+  themeFamily = signal<ThemeFamily>(this.themeService.themeFamily);
 
   draft: Settings = structuredClone(DEFAULT_SETTINGS);
 
@@ -137,6 +182,11 @@ export class SettingsComponent {
     });
     this.saved.set(true);
     setTimeout(() => this.saved.set(false), 2000);
+  }
+
+  selectTheme(family: ThemeFamily): void {
+    this.themeService.setThemeFamily(family);
+    this.themeFamily.set(family);
   }
 
   back(): void {
