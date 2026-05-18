@@ -4,6 +4,8 @@ import '@awesome.me/webawesome/dist/components/icon/icon.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/select/select.js';
 import '@awesome.me/webawesome/dist/components/option/option.js';
+import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
 @Component({
   selector: 'app-task-item',
@@ -12,8 +14,9 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
   template: `
     <li class="va-task-item" [class.va-task-completing]="completing" (focusout)="onFocusOut($event)">
       <div class="va-task-row">
-        <button
+        <wa-button
           class="va-checkbox-btn"
+          appearance="plain"
           (click)="onCheck()"
           (mouseenter)="hoveringCheckbox = true"
           (mouseleave)="hoveringCheckbox = false"
@@ -26,7 +29,7 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
             [name]="task.done || hoveringCheckbox || focusedCheckbox ? 'circle-check' : 'circle'"
             variant="regular"
           ></wa-icon>
-        </button>
+        </wa-button>
 
         @if (editing) {
           <wa-input
@@ -46,7 +49,9 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
             (keydown.enter)="enterEdit()"
             (keydown.space)="onTitleSpace($event)"
           >{{ task.title }}</span>
-          <wa-icon class="va-edit-hint" name="pen-to-square" variant="regular" aria-hidden="true" (click)="enterEdit()"></wa-icon>
+          <wa-tooltip content="Edit">
+            <wa-icon class="va-edit-hint" name="pen-to-square" variant="regular" aria-hidden="true" (click)="enterEdit()"></wa-icon>
+          </wa-tooltip>
         }
 
       </div>
@@ -147,24 +152,15 @@ import '@awesome.me/webawesome/dist/components/option/option.js';
     }
 
     .va-checkbox-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      color: inherit;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      width: 1em;
-      height: 1em;
       flex-shrink: 0;
+      font-size: 16px;
+      color: inherit;
     }
-    .va-checkbox-btn:disabled { cursor: default; }
-    .va-checkbox-btn:focus-visible {
-      outline: 2px solid var(--wa-color-brand-fill-loud);
-      outline-offset: 2px;
-      border-radius: 50%;
+    .va-checkbox-btn::part(base) {
+      padding: 0;
+      min-width: unset;
+      min-height: unset;
+      color: inherit;
     }
 
     /* Checkbox is disabled during animation to prevent double-fire on the async archive. */

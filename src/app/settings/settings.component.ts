@@ -5,6 +5,8 @@ import { SettingsService } from '../settings.service';
 import { DEFAULT_SETTINGS, Settings } from '../db';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
+import '@awesome.me/webawesome/dist/components/callout/callout.js';
+import '@awesome.me/webawesome/dist/components/icon/icon.js';
 
 @Component({
   selector: 'app-settings',
@@ -18,7 +20,10 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
       </header>
 
       @if (saved()) {
-        <p class="s-saved">Saved.</p>
+        <wa-callout variant="success" class="s-saved">
+          <wa-icon slot="icon" name="circle-check"></wa-icon>
+          Saved.
+        </wa-callout>
       }
 
       <form class="s-form" (submit)="save($event)">
@@ -108,8 +113,8 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
       margin: 0;
     }
     .s-saved {
-      color: var(--wa-color-text-quiet);
-      font-size: 12px;
+      width: 100%;
+      max-width: 480px;
       margin-bottom: 8px;
     }
   `],
