@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { SettingsService } from '../settings.service';
 import { ThemeService, ThemeFamily } from '../shared/theme.service';
 import { DEFAULT_SETTINGS, Settings } from '../db';
@@ -152,9 +152,6 @@ import '@awesome.me/webawesome/dist/components/button/button.js';
       border-color: var(--wa-color-brand-fill-loud);
       background: var(--wa-color-fill-quiet);
     }
-    .s-theme-btn--dracula {
-      font-family: monospace;
-    }
   `],
 })
 export class SettingsComponent {
@@ -163,7 +160,7 @@ export class SettingsComponent {
   private router = inject(Router);
 
   saved = signal(false);
-  themeFamily = signal<ThemeFamily>(this.themeService.themeFamily);
+  themeFamily = toSignal(this.themeService.themeFamily$, { requireSync: true });
 
   draft: Settings = structuredClone(DEFAULT_SETTINGS);
 
@@ -186,7 +183,6 @@ export class SettingsComponent {
 
   selectTheme(family: ThemeFamily): void {
     this.themeService.setThemeFamily(family);
-    this.themeFamily.set(family);
   }
 
   back(): void {
