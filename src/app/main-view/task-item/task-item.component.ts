@@ -12,7 +12,7 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
-    <li class="va-task-item" [class.va-task-completing]="completing" (focusout)="onFocusOut($event)">
+    <li class="va-task-item" [class.va-task-completing]="completing" [class.va-task-selected]="selected" (focusout)="onFocusOut($event)">
       <div class="va-task-row">
         <wa-button
           class="va-checkbox-btn"
@@ -45,7 +45,8 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
             class="va-title"
             tabindex="0"
             role="button"
-            (click)="enterEdit()"
+            (click)="onTitleClick()"
+            (dblclick)="enterEdit()"
             (keydown.enter)="enterEdit()"
             (keydown.space)="onTitleSpace($event)"
           >{{ task.title }}</span>
@@ -89,7 +90,8 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
         color 0.15s ease;
     }
     .va-task-item:hover,
-    .va-task-item:focus-within {
+    .va-task-item:focus-within,
+    .va-task-item.va-task-selected {
       background-color: var(--wa-color-fill-quiet);
       border-color: var(--wa-color-border-quiet);
       color: var(--wa-color-on-quiet);
@@ -104,7 +106,7 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
     .va-title {
       flex: 1;
-      cursor: text;
+      cursor: pointer;
       font-size: 14px;
       outline: none;
       border-radius: var(--wa-border-radius-s);
@@ -122,7 +124,8 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
       transition: opacity 0.15s ease;
     }
     .va-task-item:hover .va-edit-hint,
-    .va-task-item:focus-within .va-edit-hint {
+    .va-task-item:focus-within .va-edit-hint,
+    .va-task-item.va-task-selected .va-edit-hint {
       opacity: 1;
     }
 
@@ -182,18 +185,25 @@ export class TaskItemComponent {
   private el = inject(ElementRef);
 
   editing = false;
+  selected = false;
   completing = false;
   hoveringCheckbox = false;
   focusedCheckbox = false;
 
   @HostListener('document:mousedown', ['$event'])
   onDocumentMousedown(event: MouseEvent): void {
-    if (this.editing && !this.el.nativeElement.contains(event.target)) {
+    if (!this.el.nativeElement.contains(event.target)) {
       this.editing = false;
+      this.selected = false;
     }
   }
 
+  onTitleClick(): void {
+    this.selected = true;
+  }
+
   enterEdit(): void {
+    this.selected = false;
     this.editing = true;
     setTimeout(() => {
       const input = this.el.nativeElement.querySelector('.va-title-input') as HTMLElement | null;
@@ -240,6 +250,7 @@ export class TaskItemComponent {
     const host = event.currentTarget as Element;
     if (!next || !host.contains(next)) {
       this.editing = false;
+      this.selected = false;
     }
   }
 }
