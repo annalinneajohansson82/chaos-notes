@@ -10,6 +10,8 @@ import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js'
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
+import '@awesome.me/webawesome/dist/components/icon/icon.js';
+import '@awesome.me/webawesome/dist/components/callout/callout.js';
 
 function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
   if (count === 0) return 'nothing';
@@ -30,12 +32,16 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
         <div class="va-header-actions">
-          <a routerLink="/settings" class="va-settings-link" aria-label="Settings">⚙</a>
+          <wa-button appearance="plain" routerLink="/settings" aria-label="Settings">
+            <wa-icon name="gear"></wa-icon>
+          </wa-button>
           <wa-button
             appearance="plain"
             (click)="toggleTheme()"
             [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          >{{ isDark ? '☀' : '☾' }}</wa-button>
+          >
+            <wa-icon [name]="isDark ? 'sun' : 'moon'"></wa-icon>
+          </wa-button>
         </div>
       </header>
 
@@ -55,7 +61,10 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
         <section class="va-now-section" aria-label="Now tasks">
           <h2 class="va-tier-label">NOW</h2>
           @if (showNowNudge) {
-            <p class="va-now-nudge">You've got quite a bit in Now — maybe move something to Soon?</p>
+            <wa-callout class="va-now-nudge">
+              <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+              You've got quite a bit in Now — maybe move something to Soon?
+            </wa-callout>
           }
           <ul class="va-task-list">
             @for (note of nowNotes(); track note.id) {
@@ -129,15 +138,6 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
         gap: 4px;
       }
 
-      .va-settings-link {
-        font-size: 16px;
-        text-decoration: none;
-        color: var(--wa-color-text-quiet);
-        padding: 4px 6px;
-        border-radius: 4px;
-      }
-      .va-settings-link:hover { color: var(--wa-color-text-normal); }
-
       .va-app-name {
         font-size: 11px;
         font-weight: 600;
@@ -165,10 +165,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
       }
 
       .va-now-nudge {
-        font-size: 12px;
-        color: var(--wa-color-text-quiet);
         margin: 0 0 12px;
-        font-style: italic;
       }
 
       .va-task-list {
