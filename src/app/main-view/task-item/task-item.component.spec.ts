@@ -82,4 +82,55 @@ describe('TaskItemComponent', () => {
 
     expect(emitted).toEqual([null]);
   });
+
+  it('clicking outside the item clears selected state', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    component.selected = true;
+    fixture.detectChanges();
+
+    const outside = document.createElement('div');
+    document.body.appendChild(outside);
+    outside.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    document.body.removeChild(outside);
+
+    expect(component.selected).toBe(false);
+  });
+
+  it('double click on title opens edit mode', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector('.va-title');
+    title.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+
+    expect(component.editing).toBe(true);
+  });
+
+  it('single click on title sets selected state', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector('.va-title');
+    title.click();
+
+    expect(component.selected).toBe(true);
+  });
+
+  it('single click on title does not open edit mode', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    const title = fixture.nativeElement.querySelector('.va-title');
+    title.click();
+
+    expect(component.editing).toBe(false);
+  });
 });
