@@ -184,10 +184,15 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 
       .va-soon-list,
       .va-later-list,
-      .va-someday-list,
-      .va-braindump-list {
+      .va-someday-list {
         list-style: none;
         margin: 12px 0 0 20px;
+        padding: 0;
+      }
+
+      .va-braindump-list {
+        list-style: none;
+        margin: 12px 0 0 0;
         padding: 0;
       }
     `,
