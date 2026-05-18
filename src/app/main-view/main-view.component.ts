@@ -6,6 +6,7 @@ import { NoteService } from '../note.service';
 import { SettingsService } from '../settings.service';
 import { DEFAULT_SETTINGS, FuzzyLabels, Note, UrgencyTier } from '../db';
 import { TaskItemComponent } from './task-item/task-item.component';
+import { NoteItemComponent } from './note-item/note-item.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
@@ -25,7 +26,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [TaskItemComponent, RouterLink],
+  imports: [TaskItemComponent, NoteItemComponent, RouterLink],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
@@ -104,7 +105,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
           <span slot="summary">Braindump</span>
           <ul class="va-braindump-list" aria-label="Braindump notes">
             @for (note of braindumpNotes(); track note.id) {
-              <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
+              <app-note-item [note]="note" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
             }
           </ul>
         </wa-details>
