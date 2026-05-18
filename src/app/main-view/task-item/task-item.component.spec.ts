@@ -83,6 +83,19 @@ describe('TaskItemComponent', () => {
     expect(emitted).toEqual([null]);
   });
 
+  it('focus leaving the item clears selected state', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    component.selected = true;
+    fixture.detectChanges();
+
+    const li = fixture.nativeElement.querySelector('.va-task-item');
+    li.dispatchEvent(new FocusEvent('focusout', { bubbles: true, relatedTarget: null }));
+
+    expect(component.selected).toBe(false);
+  });
+
   it('clicking outside the item clears selected state', () => {
     const fixture = TestBed.createComponent(TaskItemComponent);
     const component = fixture.componentInstance;

@@ -106,7 +106,7 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
     .va-title {
       flex: 1;
-      cursor: text;
+      cursor: pointer;
       font-size: 14px;
       outline: none;
       border-radius: var(--wa-border-radius-s);
@@ -250,6 +250,7 @@ export class TaskItemComponent {
     const host = event.currentTarget as Element;
     if (!next || !host.contains(next)) {
       this.editing = false;
+      this.selected = false;
     }
   }
 }
