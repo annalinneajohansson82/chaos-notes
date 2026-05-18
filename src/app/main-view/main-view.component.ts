@@ -39,7 +39,9 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
             appearance="plain"
             (click)="toggleTheme()"
             [attr.aria-label]="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-          >{{ isDark ? '☀' : '☾' }}</wa-button>
+          >
+            <wa-icon [name]="isDark ? 'sun' : 'moon'"></wa-icon>
+          </wa-button>
         </div>
       </header>
 
