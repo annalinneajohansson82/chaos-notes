@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
@@ -54,7 +54,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 
         <section class="va-now-section" aria-label="Now tasks">
           <h2 class="va-tier-label">NOW</h2>
-          @if (showNowNudge) {
+          @if (showNowNudge() === true) {
             <p class="va-now-nudge">You've got quite a bit in Now — maybe move something to Soon?</p>
           }
           <ul class="va-task-list">
@@ -65,7 +65,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
         </section>
 
         <wa-details class="va-soon-row">
-          <span slot="summary">Soon ({{ soonLabel }})</span>
+          <span slot="summary">Soon ({{ soonLabel() }})</span>
           <ul class="va-soon-list" aria-label="Soon tasks">
             @for (note of soonNotes(); track note.id) {
               <app-task-item [task]="note" (complete)="completeTask($event)" (titleChange)="updateTitle(note, $event)" (tierChange)="updateTier(note, $event)" />
@@ -209,13 +209,8 @@ export class MainViewComponent {
   somedayNotes = toSignal(this.noteService.watchByTier('someday'), { initialValue: [] as Note[] });
   braindumpNotes = toSignal(this.noteService.watchUncategorized(), { initialValue: [] as Note[] });
 
-  get soonLabel(): string {
-    return getFuzzyLabel(this.soonNotes().length, this.settings().fuzzyLabels);
-  }
-
-  get showNowNudge(): boolean {
-    return this.nowNotes().length > this.settings().nowSoftLimit;
-  }
+  soonLabel = computed(() => getFuzzyLabel(this.soonNotes().length, this.settings().fuzzyLabels));
+  showNowNudge = computed(() => this.nowNotes().length > this.settings().nowSoftLimit);
 
   get isDark(): boolean {
     return this.themeService.isDark;
