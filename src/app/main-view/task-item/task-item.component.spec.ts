@@ -146,4 +146,74 @@ describe('TaskItemComponent', () => {
 
     expect(component.editing).toBe(false);
   });
+
+  // Tests for PR change: tier row is now always rendered in DOM (previously conditional on @if(editing))
+  it('tier row is always present in the DOM when not editing', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    expect(component.editing).toBe(false);
+    const tierRow = fixture.nativeElement.querySelector('.va-tier-row');
+    expect(tierRow).not.toBeNull();
+  });
+
+  it('tier row does not have va-tier-row--visible class when not editing', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    const tierRow = fixture.nativeElement.querySelector('.va-tier-row');
+    expect(tierRow.classList.contains('va-tier-row--visible')).toBe(false);
+  });
+
+  it('tier row has va-tier-row--visible class when editing', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    component.editing = true;
+    fixture.detectChanges();
+
+    const tierRow = fixture.nativeElement.querySelector('.va-tier-row');
+    expect(tierRow.classList.contains('va-tier-row--visible')).toBe(true);
+  });
+
+  it('entering edit mode adds va-tier-row--visible class to tier row', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    component.enterEdit();
+    fixture.detectChanges();
+
+    const tierRow = fixture.nativeElement.querySelector('.va-tier-row');
+    expect(tierRow.classList.contains('va-tier-row--visible')).toBe(true);
+  });
+
+  it('tier row loses va-tier-row--visible class after editing is cancelled via escape', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    component.editing = true;
+    fixture.detectChanges();
+
+    component.editing = false;
+    fixture.detectChanges();
+
+    const tierRow = fixture.nativeElement.querySelector('.va-tier-row');
+    expect(tierRow.classList.contains('va-tier-row--visible')).toBe(false);
+  });
+
+  it('wa-select inside tier row is always present in the DOM', () => {
+    const fixture = TestBed.createComponent(TaskItemComponent);
+    const component = fixture.componentInstance;
+    component.task = makeNote();
+    fixture.detectChanges();
+
+    const select = fixture.nativeElement.querySelector('.va-tier-row wa-select');
+    expect(select).not.toBeNull();
+  });
 });
