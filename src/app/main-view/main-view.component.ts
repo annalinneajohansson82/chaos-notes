@@ -165,6 +165,15 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
         margin: 0 0 16px;
       }
 
+      .va-now-section {
+        background: var(--wa-color-surface-raised);
+        border: 2px solid var(--wa-color-text-normal);
+        border-radius: var(--wa-border-radius-m);
+        box-shadow: 4px 4px 0 var(--wa-color-text-normal);
+        padding: 20px;
+        margin-bottom: 28px;
+      }
+
       .va-now-nudge {
         margin: 0 0 12px;
       }
@@ -179,14 +188,20 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
       .va-later-row,
       .va-someday-row,
       .va-braindump-row {
-        margin-top: 40px;
+        display: block;
+        margin-top: 20px;
+        background: var(--wa-color-surface-raised);
+        border: 2px solid var(--wa-color-text-normal);
+        border-radius: var(--wa-border-radius-m);
+        box-shadow: 4px 4px 0 var(--wa-color-text-normal);
+        padding: 4px 12px 12px;
       }
 
       .va-soon-list,
       .va-later-list,
       .va-someday-list {
         list-style: none;
-        margin: 12px 0 0 20px;
+        margin: 4px 0 0;
         padding: 0;
       }
 

@@ -38,7 +38,6 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
             (wa-blur)="commitTitle($event)"
             (keydown.enter)="commitTitle($event)"
             (keydown.escape)="editing = false"
-            autofocus
           ></wa-input>
         } @else {
           <span
@@ -81,7 +80,7 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
 
     .va-task-item {
       padding: var(--wa-space-m) var(--wa-space-xs);
-      margin-bottom: var(--wa-space-m);
+      margin-bottom: var(--wa-space-xs);
       margin-left: -11px;
       border: 1px solid transparent;
       border-radius: var(--wa-border-radius-m);
@@ -97,7 +96,7 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
       background-color: var(--wa-color-fill-quiet);
       border-color: var(--wa-color-border-quiet);
       color: var(--wa-color-on-quiet);
-      box-shadow: var(--wa-shadow-m);
+      box-shadow: 3px 3px 0 var(--wa-color-text-normal);
     }
 
     .va-task-row {
