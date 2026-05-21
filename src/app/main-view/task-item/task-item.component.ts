@@ -38,7 +38,6 @@ import '@awesome.me/webawesome/dist/components/tooltip/tooltip.js';
             (wa-blur)="commitTitle($event)"
             (keydown.enter)="commitTitle($event)"
             (keydown.escape)="editing = false"
-            autofocus
           ></wa-input>
         } @else {
           <span
