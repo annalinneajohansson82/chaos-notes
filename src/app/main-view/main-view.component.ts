@@ -1,15 +1,17 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, ViewChild, inject, computed, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ThemeService } from '../shared/theme.service';
 import { NoteService } from '../note.service';
 import { SettingsService } from '../settings.service';
-import { DEFAULT_SETTINGS, FuzzyLabels, Note, UrgencyTier } from '../db';
+import { DEFAULT_SETTINGS, FuzzyLabels, Note, UrgencyTier, Settings } from '../db';
 import { TaskItemComponent } from './task-item/task-item.component';
+import { SettingsFormComponent } from '../settings/settings-form.component';
 import type WaInput from '@awesome.me/webawesome/dist/components/input/input.js';
+import type WaDrawer from '@awesome.me/webawesome/dist/components/drawer/drawer.js';
 import '@awesome.me/webawesome/dist/components/input/input.js';
 import '@awesome.me/webawesome/dist/components/button/button.js';
 import '@awesome.me/webawesome/dist/components/details/details.js';
+import '@awesome.me/webawesome/dist/components/drawer/drawer.js';
 
 function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
   if (count === 0) return 'nothing';
@@ -23,14 +25,18 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 @Component({
   selector: 'app-main-view',
   standalone: true,
-  imports: [TaskItemComponent, RouterLink],
+  imports: [TaskItemComponent, SettingsFormComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   template: `
     <div class="va-root">
       <header class="va-header">
         <span class="va-app-name">Chaos Notes</span>
         <div class="va-header-actions">
-          <a routerLink="/settings" class="va-settings-link" aria-label="Settings">⚙</a>
+          <wa-button
+            appearance="plain"
+            (click)="openSettings()"
+            aria-label="Settings"
+          >⚙</wa-button>
           <wa-button
             appearance="plain"
             (click)="toggleTheme()"
@@ -100,6 +106,13 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
           </ul>
         </wa-details>
       </main>
+
+      <wa-drawer #settingsDrawer label="Settings" placement="end" light-dismiss>
+        <app-settings-form 
+          [settings]="settings()" 
+          (save)="saveSettings($event)"
+        ></app-settings-form>
+      </wa-drawer>
     </div>
   `,
   styles: [
@@ -197,6 +210,7 @@ function getFuzzyLabel(count: number, labels: FuzzyLabels): string {
 })
 export class MainViewComponent {
   @ViewChild('captureRef') private captureRef!: ElementRef<WaInput>;
+  @ViewChild('settingsDrawer') private settingsDrawer!: ElementRef<WaDrawer>;
 
   private themeService = inject(ThemeService);
   private noteService = inject(NoteService);
@@ -218,6 +232,14 @@ export class MainViewComponent {
 
   toggleTheme(): void {
     this.themeService.toggle();
+  }
+
+  openSettings(): void {
+    this.settingsDrawer.nativeElement.open = true;
+  }
+
+  async saveSettings(patch: Partial<Settings>): Promise<void> {
+    await this.settingsService.save(patch);
   }
 
   async capture(): Promise<void> {

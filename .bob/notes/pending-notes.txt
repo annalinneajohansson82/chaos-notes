@@ -1,0 +1,5 @@
+{"id":"78c3a137-fab4-4434-b0f4-b1c962964770","ts":"2026-05-25T12:57:18.697Z","path":"/home/anna/Projects/Chaos Tasks/AGENTS.md","version":"1.0.0","taskID":"b46fae52-d060-4483-9a39-1cd1a21169a7"}
+{"id":"bac38433-3d14-4f1a-a517-d1c049b8b24b","ts":"2026-05-25T13:02:28.381Z","path":"/home/anna/Projects/Chaos Tasks/src/app/settings/settings-form.component.ts","version":"1.0.0","taskID":"b46fae52-d060-4483-9a39-1cd1a21169a7"}
+{"id":"f79a93b8-2aec-42bb-ae28-1da3a1b2076f","ts":"2026-05-25T13:02:51.413Z","path":"/home/anna/Projects/Chaos Tasks/src/app/main-view/main-view.component.ts","version":"1.0.0","taskID":"b46fae52-d060-4483-9a39-1cd1a21169a7"}
+{"id":"2c2d1a02-fb7b-4798-909f-0fe583452b44","ts":"2026-05-25T13:03:15.117Z","path":"/home/anna/Projects/Chaos Tasks/src/app/settings/settings.component.ts","version":"1.0.0","taskID":"b46fae52-d060-4483-9a39-1cd1a21169a7"}
+{"id":"c63bf316-f633-4f29-afab-5ab0ca8b5d3c","ts":"2026-05-25T13:05:03.671Z","path":"/home/anna/Projects/Chaos Tasks/src/app/main-view/main-view.component.ts","version":"1.0.0","taskID":"b46fae52-d060-4483-9a39-1cd1a21169a7"}
